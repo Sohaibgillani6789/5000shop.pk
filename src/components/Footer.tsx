@@ -2,20 +2,13 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
-import { motion, useScroll, useTransform, type Variants } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import {
   ArrowUp,
   ArrowUpRight,
   Check,
   Copy,
-  Globe,
-  MessageSquare,
-  Send,
   Sparkles,
-  Truck,
-  CreditCard,
-  PhoneCall,
-  ShieldCheck,
 } from "lucide-react";
 import { AnchorLink } from "@/components/SmoothScroll";
 
@@ -64,29 +57,7 @@ export default function Footer() {
     setTimeout(() => setCopiedCode(false), 3000);
   };
 
-  // Motion variants
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.08,
-        delayChildren: 0.05,
-      },
-    },
-  };
 
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 16 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        ease: [0.16, 1, 0.3, 1],
-      },
-    },
-  };
 
   return (
     <footer ref={footerRef} className="relative bg-[#0A0704]">

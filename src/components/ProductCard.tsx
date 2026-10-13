@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import type { Product } from "@/types/product";
+import type { Product } from "@/lib/supabase/types";
 
 interface ProductCardProps {
   product: Product;
@@ -12,10 +12,21 @@ interface ProductCardProps {
 export default function ProductCard({ product, priority = false }: ProductCardProps) {
   const isPng = product.image_url?.endsWith(".png");
 
+  // Derive badge from the first tag, falling back to "NEW"
+  const badge = product.tags && product.tags.length > 0 ? product.tags[0] : "NEW";
+
+  // Compute discount percentage when compare_at_price is available
+  const hasDiscount =
+    product.compare_at_price != null &&
+    product.compare_at_price > product.price;
+  const discountPercent = hasDiscount
+    ? Math.round(((product.compare_at_price! - product.price) / product.compare_at_price!) * 100)
+    : 0;
+
   return (
     <motion.article
       whileHover={{ y: -4, transition: { duration: 0.22, ease: "easeOut" } }}
-      aria-label={`${product.category} - ${product.title} - Rs ${product.price.toLocaleString()}`}
+      aria-label={`${product.title} - Rs ${product.price.toLocaleString()}`}
       style={{
         position: "relative",
         width: "240px",
@@ -78,8 +89,31 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
             fontFamily: "var(--font-outfit), sans-serif",
           }}
         >
-          {product.badge || "NEW"}
+          {badge}
         </span>
+
+        {/* ── Discount Badge: Top-Right ── */}
+        {hasDiscount && (
+          <span
+            style={{
+              position: "absolute",
+              top: "10px",
+              right: "10px",
+              fontSize: "0.6875rem",
+              fontWeight: 800,
+              letterSpacing: "0.04em",
+              color: "#FFFFFF",
+              background: "#DC2626",
+              padding: "2.5px 7px",
+              borderRadius: "2px",
+              lineHeight: 1.15,
+              zIndex: 2,
+              fontFamily: "var(--font-outfit), sans-serif",
+            }}
+          >
+            -{discountPercent}%
+          </span>
+        )}
 
         {/* Out of Stock Overlay */}
         {!product.in_stock && (
@@ -111,9 +145,9 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
         )}
       </div>
 
-      {/* ── 3-Line Description: Category > Product Name > Rs Price ── */}
+      {/* ── 3-Line Description: Badge Tag > Product Name > Rs Price ── */}
       <div style={{ display: "flex", flexDirection: "column", textAlign: "left" }}>
-        {/* Line 1: Category Name */}
+        {/* Line 1: Tag / Badge Label */}
         <p
           style={{
             fontSize: "0.8125rem",
@@ -125,7 +159,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
             letterSpacing: "-0.01em",
           }}
         >
-          {product.category}
+          {badge}
         </p>
 
         {/* Line 2: Product Name */}
@@ -147,7 +181,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
           {product.title}
         </h3>
 
-        {/* Line 3: Rs Price */}
+        {/* Line 3: Rs Price (+ compare-at price if available) */}
         <p
           style={{
             fontSize: "0.8125rem",
@@ -156,9 +190,25 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
             margin: 0,
             lineHeight: 1.3,
             fontFamily: "var(--font-outfit), sans-serif",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.4rem",
+            flexWrap: "wrap",
           }}
         >
-          Rs {product.price.toLocaleString()}
+          <span>Rs {product.price.toLocaleString()}</span>
+          {hasDiscount && (
+            <span
+              style={{
+                textDecoration: "line-through",
+                color: "#9CA3AF",
+                fontWeight: 400,
+                fontSize: "0.75rem",
+              }}
+            >
+              Rs {product.compare_at_price!.toLocaleString()}
+            </span>
+          )}
         </p>
       </div>
 

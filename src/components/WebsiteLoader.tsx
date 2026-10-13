@@ -35,6 +35,7 @@ export default function WebsiteLoader() {
   const progressRef = useRef(0);
   const rafRef = useRef<number | null>(null);
   const targetProgressRef = useRef(0);
+  const animateProgressRef = useRef<() => void>(() => {});
 
   // Smooth progress interpolation — animates toward target
   const animateProgress = useCallback(() => {
@@ -49,9 +50,13 @@ export default function WebsiteLoader() {
       // Ease toward target (faster when far, slower when close)
       progressRef.current = current + diff * 0.15;
       setProgress(Math.round(progressRef.current));
-      rafRef.current = requestAnimationFrame(animateProgress);
+      rafRef.current = requestAnimationFrame(() => animateProgressRef.current());
     }
   }, []);
+
+  useEffect(() => {
+    animateProgressRef.current = animateProgress;
+  }, [animateProgress]);
 
   const updateProgress = useCallback(
     (newTarget: number) => {

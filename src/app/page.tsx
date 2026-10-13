@@ -3,8 +3,11 @@ import CategoryShowcase from "@/components/CategoryShowcase";
 
 import FeaturedProductsSection from "@/components/FeaturedProductsSection";
 import Footer from "@/components/Footer";
+import { getFeaturedProducts } from "@/lib/supabase/products";
 
-export default function Home() {
+export default async function Home() {
+  const products = await getFeaturedProducts();
+
   return (
     /* Single unified dark canvas — sections blend via internal gradients */
     <div style={{ background: "#050708", color: "white", position: "relative", width: "100%", maxWidth: "100%", overflowX: "clip" }}>
@@ -19,7 +22,7 @@ export default function Home() {
           }}
         >
           <CategoryShowcase />
-          <FeaturedProductsSection />
+          <FeaturedProductsSection products={products} />
         </div>
       </main>
       <Footer />

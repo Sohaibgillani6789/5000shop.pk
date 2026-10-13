@@ -20,8 +20,7 @@ function AnimatedCounter({ from = 0, to, prefix = "", suffix = "", duration = 2 
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
-    if (shouldReduceMotion) { setCount(to); return; }
-    if (!isInView) return;
+    if (shouldReduceMotion || !isInView) return;
     let startTime: number | null = null;
     let id: number;
     const update = (ts: number) => {
@@ -35,9 +34,11 @@ function AnimatedCounter({ from = 0, to, prefix = "", suffix = "", duration = 2 
     return () => cancelAnimationFrame(id);
   }, [isInView, from, to, duration, shouldReduceMotion]);
 
+  const displayCount = shouldReduceMotion ? to : count;
+
   return (
     <span ref={ref} className="font-display tabular-nums">
-      {prefix}{count.toLocaleString()}{suffix}
+      {prefix}{displayCount.toLocaleString()}{suffix}
     </span>
   );
 }

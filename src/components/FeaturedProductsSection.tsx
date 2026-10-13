@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import { useFeaturedProducts } from "@/hooks/useFeaturedProducts";
+import type { Product } from "@/lib/supabase/types";
 import ProductCard from "@/components/ProductCard";
 
 // ─── Skeleton card (minimalist 3-line themed) ──────────────────────────────
@@ -42,15 +42,14 @@ function SkeletonCard() {
   );
 }
 
-// ─── Main section ─────────────────────────────────────────────────────────────
-export default function FeaturedProductsSection() {
-  const shouldReduceMotion = useReducedMotion();
-  const { data: products, isLoading, error, fetch } = useFeaturedProducts(10);
+// ─── Props ────────────────────────────────────────────────────────────────────
+interface FeaturedProductsSectionProps {
+  products: Product[];
+}
 
-  useEffect(() => {
-    fetch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+// ─── Main section ─────────────────────────────────────────────────────────────
+export default function FeaturedProductsSection({ products }: FeaturedProductsSectionProps) {
+  const shouldReduceMotion = useReducedMotion();
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
@@ -265,23 +264,9 @@ export default function FeaturedProductsSection() {
               paddingRight: "clamp(1rem, 2.5vw, 2.5rem)",
             }}
           >
-            {isLoading && Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={i} />)}
+            {products.length === 0 && Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={i} />)}
 
-            {!isLoading && error && (
-              <div
-                style={{
-                  padding: "2rem 3rem",
-                  borderRadius: "1.5rem",
-                  border: "1px solid rgba(200,80,80,0.15)",
-                  color: "#9A6F1E",
-                  fontSize: "0.875rem",
-                }}
-              >
-                Failed to load products: {error}
-              </div>
-            )}
-
-            {!isLoading && !error && products.map((product, idx) => (
+            {products.length > 0 && products.map((product, idx) => (
               <div key={product.id} style={{ flexShrink: 0 }}>
                 <ProductCard product={product} priority={idx < 3} />
               </div>
@@ -308,7 +293,8 @@ export default function FeaturedProductsSection() {
           50% { opacity: 1; }
         }
         .fps-skeleton { animation: fps-skeleton-pulse 1.6s ease-in-out infinite; }
-      `}</style>
+      `}
+      </style>
     </section>
   );
 }
