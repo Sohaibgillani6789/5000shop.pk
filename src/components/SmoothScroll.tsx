@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactLenis, useLenis } from "lenis/react";
+import { useRouter } from "next/navigation";
 import { ReactNode, useCallback } from "react";
 
 /**
@@ -55,6 +56,7 @@ export function AnchorLink({
   duration = 1.5,
 }: AnchorLinkProps) {
   const lenis = useLenis();
+  const router = useRouter();
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -70,12 +72,14 @@ export function AnchorLink({
           easing: customEasing,
           offset: -94, // Account for sticky header (announcement bar + navbar) height
         });
+      } else if (!target) {
+        router.push(`/${href}`);
       }
 
       // Call any additional onClick handler (e.g., close mobile menu)
       onClick?.();
     },
-    [href, lenis, duration, onClick]
+    [href, lenis, duration, onClick, router]
   );
 
   return (

@@ -1,6 +1,5 @@
 import Hero from "@/components/Hero";
 import CategoryShowcase from "@/components/CategoryShowcase";
-
 import FeaturedProductsSection from "@/components/FeaturedProductsSection";
 import Footer from "@/components/Footer";
 import { getFeaturedProducts } from "@/lib/supabase/products";

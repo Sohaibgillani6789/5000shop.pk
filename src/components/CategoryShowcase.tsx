@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   motion,
   useMotionValue,
@@ -110,7 +111,7 @@ function CategoryBentoCard3D({
   index: number;
   shouldReduceMotion: boolean | null;
 }) {
-  const cardRef = useRef<HTMLAnchorElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
 
   // Normalized cursor coordinates [-0.5, 0.5] relative to card center
@@ -151,7 +152,7 @@ function CategoryBentoCard3D({
     return `radial-gradient(ellipse 420px 420px at ${px}% ${py}%, rgba(255, 255, 255, 0.38) 0%, rgba(244, 117, 20, 0.18) 32%, transparent 72%)`;
   });
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (shouldReduceMotion || !cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const normalizedX = (e.clientX - rect.left) / rect.width - 0.5;
@@ -179,12 +180,16 @@ function CategoryBentoCard3D({
         minHeight: 0,
       }}
     >
-      <motion.a
-        ref={cardRef}
-        href="#"
-        onMouseMove={handleMouseMove}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+      <Link
+        href={`/category/${cat.id}`}
+        aria-label={`Explore ${cat.name} collection`}
+        className="block w-full h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F47514] rounded-[1.25rem]"
+      >
+        <motion.div
+          ref={cardRef}
+          onMouseMove={handleMouseMove}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         initial={shouldReduceMotion ? {} : { opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-40px" }}
@@ -423,7 +428,8 @@ function CategoryBentoCard3D({
             </span>
           </div>
         </motion.div>
-      </motion.a>
+        </motion.div>
+      </Link>
     </div>
   );
 }

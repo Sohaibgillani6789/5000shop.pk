@@ -1,16 +1,25 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import type { Product } from "@/lib/supabase/types";
 
 interface ProductCardProps {
   product: Product;
   priority?: boolean;
+  layoutMode?: "carousel" | "grid";
+  className?: string;
 }
 
-export default function ProductCard({ product, priority = false }: ProductCardProps) {
+export default function ProductCard({
+  product,
+  priority = false,
+  layoutMode = "carousel",
+  className = "",
+}: ProductCardProps) {
   const isPng = product.image_url?.endsWith(".png");
+  const isGrid = layoutMode === "grid";
 
   // Derive badge from the first tag, falling back to "NEW"
   const badge = product.tags && product.tags.length > 0 ? product.tags[0] : "NEW";
@@ -24,20 +33,24 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
     : 0;
 
   return (
-    <motion.article
-      whileHover={{ y: -4, transition: { duration: 0.22, ease: "easeOut" } }}
+    <Link
+      href={`/product/${product.slug}`}
+      className={`block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F47514] rounded-md transition-shadow ${className}`}
       aria-label={`${product.title} - Rs ${product.price.toLocaleString()}`}
-      style={{
-        position: "relative",
-        width: "240px",
-        flexShrink: 0,
-        cursor: "pointer",
-        display: "flex",
-        flexDirection: "column",
-        background: "transparent",
-      }}
-      className="product-card group"
     >
+      <motion.article
+        whileHover={{ y: -4, transition: { duration: 0.22, ease: "easeOut" } }}
+        style={{
+          position: "relative",
+          width: isGrid ? "100%" : "240px",
+          flexShrink: isGrid ? 1 : 0,
+          cursor: "pointer",
+          display: "flex",
+          flexDirection: "column",
+          background: "transparent",
+        }}
+        className="product-card group"
+      >
       {/* ── Product Image Container ── */}
       <div
         style={{
@@ -59,7 +72,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
           alt={product.title}
           fill
           priority={priority}
-          sizes="240px"
+          sizes={isGrid ? "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" : "240px"}
           style={{
             objectFit: isPng ? "contain" : "cover",
             padding: isPng ? "1.25rem" : "0",
@@ -217,6 +230,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
           transform: scale(1.05);
         }
       `}</style>
-    </motion.article>
+      </motion.article>
+    </Link>
   );
 }

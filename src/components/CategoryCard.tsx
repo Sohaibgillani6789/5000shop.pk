@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Link from "next/link";
 import {
   motion,
   useMotionValue,
@@ -103,10 +104,15 @@ export default function CategoryCard({ category, index }: CategoryCardProps) {
       }}
       className="category-card-wrapper"
     >
-      <motion.div
-        ref={cardRef}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
+      <Link
+        href={`/category/${category.slug}`}
+        aria-label={`Explore ${category.name} collection`}
+        className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E5B84C] rounded-[24px]"
+      >
+        <motion.div
+          ref={cardRef}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
         whileTap={{ scale: 0.98 }}
         style={{
           rotateX: shouldReduceMotion ? 0 : rotateX,
@@ -258,7 +264,8 @@ export default function CategoryCard({ category, index }: CategoryCardProps) {
             <ArrowUpRight size={19} strokeWidth={2.5} />
           </div>
         </div>
-      </motion.div>
+        </motion.div>
+      </Link>
 
       <style jsx global>{`
         .category-card-container:hover {
