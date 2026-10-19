@@ -1,36 +1,140 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 5000shop.pk — 5 Hazaar Tak ("Everything Under ₨5,000")
 
-## Getting Started
+> **Production E-Commerce MVP for the Pakistani Market**  
+> Curated Fashion, Beauty, Electronics, Home, and Accessories — all strictly priced at or below ₨5,000 with Cash on Delivery (COD) nationwide.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 1. System Overview & Core Business Rules
+
+- **Brand Name**: 5 Hazaar Tak (5000shop.pk)
+- **Market & Currency**: Pakistan (PKR / ₨)
+- **Price Ceiling Guarantee**: Every product listed and sold MUST have a unit price less than or equal to ₨5,000 (`unit_price <= 5000`).
+- **Payment Method**: Cash on Delivery (COD) exclusively for MVP.
+- **Fixed Store Categories (5 Canonical Slugs)**:
+  1. `fashion` — Mens & Womens Fashion
+  2. `beauty` — Apothecary & Personal Care
+  3. `electronics` — Everyday Smart Electronics & Tech Accents
+  4. `home` — Living Space & Artisan Decor
+  5. `accessories` — Timepieces, Bags & Daily Carry
+
+---
+
+## 2. Technology Stack
+
+- **Framework**: [Next.js 16.3.3](https://nextjs.org) (App Router, Turbopack)
+- **UI Library**: React 19 (`react@19.2.8`)
+- **Language**: TypeScript 5 (Strict Mode, zero `any`)
+- **Styling**: Tailwind CSS v4 (CSS-first token configuration in `src/app/globals.css`)
+- **Database & Auth**: [Supabase](https://supabase.com) (`@supabase/supabase-js`, `@supabase/ssr`, PostgreSQL with Row Level Security)
+- **Motion & Interactions**: Framer Motion 13, Lenis Smooth Scroll, Embla Carousel
+- **Icons**: Lucide React & Hugeicons
+
+---
+
+## 3. Architecture & Repository Layout
+
+```
+g:/hazaartak/
+├── public/
+│   └── images/                # Local verified catalog & brand assets
+├── src/
+│   ├── app/
+│   │   ├── category/[slug]/   # Dynamic async category route (5 canonical slugs)
+│   │   ├── product/[slug]/    # Dynamic async product detail route
+│   │   ├── cart/              # Cart page
+│   │   ├── layout.tsx         # Root layout with fonts, JSON-LD, smooth scroll
+│   │   ├── page.tsx           # Home page with Hero, Showcase, Featured items
+│   │   └── globals.css        # Tailwind v4 CSS variables & design tokens
+│   ├── components/
+│   │   ├── CategoryShowcase.tsx
+│   │   ├── FeaturedProductsSection.tsx
+│   │   ├── Hero.tsx
+│   │   ├── Navbar.tsx
+│   │   ├── ProductActions.tsx # Purchase controls (Add to Cart, Buy Now)
+│   │   ├── ProductCard.tsx    # Resilient card component with image error fallback
+│   │   └── Footer.tsx
+│   ├── lib/
+│   │   ├── middleware.ts      # Safe session synchronization helper
+│   │   └── supabase/
+│   │       ├── client.ts      # Browser client (supports ANON & PUBLISHABLE keys)
+│   │       ├── server.ts      # Server-side client with async cookieStore
+│   │       ├── products.ts    # Database query layer with fallback dataset
+│   │       └── types.ts       # Canonical Category & Product TypeScript interfaces
+│   └── middleware.ts          # Root Next.js middleware with static asset bypass
+├── supabase/
+│   ├── migrations/            # Idempotent SQL migrations
+│   │   └── 001_featured_products_migration.sql
+│   ├── seed.sql               # Curated sample seed data mapped to /images/*
+│   └── README.md              # Migration execution & verification instructions
+├── .env.local.example         # Environment variable template
+└── package.json
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 4. Local Development Setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4.1 Prerequisites
+- Node.js 20+ installed
+- A free [Supabase](https://supabase.com) project or local Supabase CLI
 
-## Learn More
+### 4.2 Clone & Install Dependencies
+```bash
+git clone https://github.com/Sohaibgillani6789/5000shop.pk.git
+cd 5000shop.pk
+npm install
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 4.3 Configure Environment Variables
+Copy `.env.local.example` to `.env.local`:
+```bash
+cp .env.local.example .env.local
+```
+Fill in your Supabase credentials:
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-server-only
+ADMIN_EMAILS=admin@5000shop.pk
+NEXT_PUBLIC_WHATSAPP_NUMBER=923000000000
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+> Note: If using the new Supabase publishable key format, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` is also supported.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 4.4 Apply Supabase Database Migrations
+1. Open your project in the [Supabase Dashboard](https://supabase.com/dashboard).
+2. Navigate to the **SQL Editor**.
+3. Copy and run the contents of [`supabase/migrations/001_featured_products_migration.sql`](./supabase/migrations/001_featured_products_migration.sql).
+4. Optionally seed sample products by running [`supabase/seed.sql`](./supabase/seed.sql).
+5. For verification steps, consult [`supabase/README.md`](./supabase/README.md).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 4.5 Start the Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 5. Build & Quality Assurance Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+# Run ESLint across all components and pages
+npm run lint
+
+# Compile production build with Turbopack and verify TypeScript types
+npm run build
+
+# Start production server
+npm start
+```
+
+---
+
+## 6. Security & Engineering Standards
+
+1. **Async Dynamic APIs in Next.js 16**: Route `params` and `searchParams` are Promises. Always type as `params: Promise<{ slug: string }>` and `await params` before consumption.
+2. **Server-Side Pricing Authority**: Never trust client-submitted prices, discounts, or delivery fees. All order subtotals and stock levels are verified server-side.
+3. **Atomic Order Placement**: Multi-table insertions (`orders` and `order_items`) execute exclusively through atomic PostgreSQL RPC functions to prevent orphaned records.
+4. **Non-Blocking Middleware**: Public shopping routes (`/`, `/category/*`, `/product/*`, `/cart`, `/checkout`, `/order-confirmation/*`) are guaranteed to never be blocked by authentication redirects.

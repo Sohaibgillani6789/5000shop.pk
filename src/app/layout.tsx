@@ -4,6 +4,8 @@ import "./globals.css";
 import { SmoothScrollProvider } from "@/components/SmoothScroll";
 import Navbar from "@/components/Navbar";
 import WebsiteLoader from "@/components/WebsiteLoader";
+import { CartProvider } from "@/components/cart/CartProvider";
+import CartDrawer from "@/components/cart/CartDrawer";
 
 // Body font: clean, modern, highly legible
 const inter = Inter({
@@ -84,8 +86,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <SmoothScrollProvider>
-          <Navbar />
-          {children}
+          <CartProvider>
+            <Navbar />
+            <CartDrawer />
+            {children}
+          </CartProvider>
         </SmoothScrollProvider>
       </body>
     </html>

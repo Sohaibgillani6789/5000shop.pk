@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ShoppingCart, Search, User, Truck } from "lucide-react";
 import { AnchorLink } from "./SmoothScroll";
+import { useCart } from "@/components/cart/CartProvider";
 
 const NAV_LINKS = [
   { href: "#home", label: "Home" },
@@ -15,6 +16,7 @@ const NAV_LINKS = [
 ];
 
 export default function Navbar() {
+  const { itemCount, openCart, isHydrated } = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [announcementHeight, setAnnouncementHeight] = useState(0);
@@ -193,7 +195,9 @@ export default function Navbar() {
               </button>
 
               <button
-                aria-label="Cart"
+                type="button"
+                onClick={openCart}
+                aria-label={`Open shopping cart with ${isHydrated ? itemCount : 0} items`}
                 className="nav-icon-btn"
                 style={{
                   display: "flex",
@@ -216,9 +220,10 @@ export default function Navbar() {
                     position: "absolute",
                     top: "5px",
                     right: "5px",
-                    width: "15px",
-                    height: "15px",
-                    borderRadius: "50%",
+                    minWidth: "16px",
+                    height: "16px",
+                    padding: "0 3px",
+                    borderRadius: "8px",
                     background: "#F47514",
                     color: "#000",
                     fontSize: "0.6rem",
@@ -229,7 +234,7 @@ export default function Navbar() {
                     lineHeight: 1,
                   }}
                 >
-                  0
+                  {isHydrated ? itemCount : 0}
                 </span>
               </button>
             </div>
@@ -358,6 +363,23 @@ export default function Navbar() {
                   borderTop: "1px solid rgba(0,0,0,0.15)",
                 }}
               >
+                <button
+                  type="button"
+                  onClick={() => {
+                    closePanel();
+                    openCart();
+                  }}
+                  className="panel-cta-btn"
+                  style={{
+                    marginBottom: "0.5rem",
+                    background: "#000000",
+                    color: "#FFFFFF",
+                  }}
+                >
+                  <ShoppingCart size={17} />
+                  <span>View Cart ({isHydrated ? itemCount : 0})</span>
+                </button>
+
                 <AnchorLink
                   href="#categories"
                   onClick={closePanel}

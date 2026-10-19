@@ -1,32 +1,71 @@
 "use client";
 
 import { useState } from "react";
-import { ShoppingCart, Zap, Minus, Plus, CheckCircle2, AlertCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ShoppingCart, Zap, Minus, Plus, AlertCircle, Check } from "lucide-react";
+import { useCart } from "@/components/cart/CartProvider";
 
 interface ProductActionsProps {
+  productId: string;
+  slug: string;
+  title: string;
   price: number;
+  imageUrl?: string | null;
   inStock: boolean;
 }
 
-export default function ProductActions({ price, inStock }: ProductActionsProps) {
+export default function ProductActions({
+  productId,
+  slug,
+  title,
+  price,
+  imageUrl,
+  inStock,
+}: ProductActionsProps) {
+  const router = useRouter();
+  const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
-  const [notification, setNotification] = useState<{
-    type: "info" | "warning";
-    message: string;
-  } | null>(null);
+  const [isAdded, setIsAdded] = useState(false);
 
   const increment = () => setQuantity((prev) => Math.min(10, prev + 1));
   const decrement = () => setQuantity((prev) => Math.max(1, prev - 1));
 
-  const handleAction = (actionType: "cart" | "buy") => {
+  const handleAddToCart = () => {
     if (!inStock) return;
-    setNotification({
-      type: "info",
-      message:
-        actionType === "cart"
-          ? "Cart functionality is coming soon! Orders and online payments are currently in development."
-          : "Direct checkout is coming soon! We are actively setting up secure Cash on Delivery dispatch.",
-    });
+
+    addItem(
+      {
+        productId,
+        slug,
+        title,
+        price,
+        imageUrl: imageUrl || null,
+      },
+      quantity
+    );
+
+    setIsAdded(true);
+    setTimeout(() => {
+      setIsAdded(false);
+    }, 1800);
+  };
+
+  const handleBuyNow = () => {
+    if (!inStock) return;
+
+    addItem(
+      {
+        productId,
+        slug,
+        title,
+        price,
+        imageUrl: imageUrl || null,
+      },
+      quantity
+    );
+
+    // Direct routing to cart/checkout stage
+    router.push("/cart");
   };
 
   if (!inStock) {
@@ -50,7 +89,7 @@ export default function ProductActions({ price, inStock }: ProductActionsProps) 
           <span className="text-xs font-bold uppercase tracking-wider text-[#4A3B32]">
             Quantity
           </span>
-          <div className="inline-flex items-center bg-white border border-[#D5C9B8] rounded-full p-1 shadow-sm">
+          <div className="inline-flex items-center bg-white border border-[#D5C9B8] rounded-full p-1 shadow-2xs">
             <button
               type="button"
               onClick={decrement}
@@ -92,45 +131,31 @@ export default function ProductActions({ price, inStock }: ProductActionsProps) 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
         <button
           type="button"
-          onClick={() => handleAction("cart")}
-          className="w-full py-3.5 px-6 rounded-full bg-[#1A1108] hover:bg-[#F47514] active:bg-[#DF5E03] text-white font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg hover:shadow-orange-500/20 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer group"
+          onClick={handleAddToCart}
+          className="w-full py-3.5 px-6 rounded-full bg-[#1A1108] hover:bg-[#F47514] active:bg-[#DF5E03] text-white hover:text-black font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg hover:shadow-orange-500/20 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer group"
         >
-          <ShoppingCart className="w-4 h-4 group-hover:scale-110 transition-transform" />
-          <span>Add to Cart</span>
+          {isAdded ? (
+            <>
+              <Check className="w-4 h-4 text-emerald-400 group-hover:text-black" />
+              <span>Added to Cart!</span>
+            </>
+          ) : (
+            <>
+              <ShoppingCart className="w-4 h-4 group-hover:scale-110 transition-transform" />
+              <span>Add to Cart</span>
+            </>
+          )}
         </button>
 
         <button
           type="button"
-          onClick={() => handleAction("buy")}
+          onClick={handleBuyNow}
           className="w-full py-3.5 px-6 rounded-full bg-[#F47514] hover:bg-[#DF5E03] active:bg-[#B44100] text-black font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg hover:shadow-orange-500/25 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer group"
         >
           <Zap className="w-4 h-4 group-hover:scale-110 transition-transform" />
           <span>Buy Now</span>
         </button>
       </div>
-
-      {/* ── Informational Feedback Toast (Prevents misleading order assumptions) ── */}
-      {notification && (
-        <div
-          role="status"
-          className="mt-1 p-3.5 rounded-xl bg-[#FFF6EE] border border-[#F47514]/30 text-[#8C3A02] text-xs font-medium flex items-start gap-2.5 animate-in fade-in slide-in-from-top-1 duration-200"
-        >
-          <CheckCircle2 className="w-4 h-4 text-[#F47514] shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <p className="font-bold text-[13px] text-[#1A1108]">Preview Mode</p>
-            <p className="mt-0.5 leading-relaxed text-[#4A3B32]">
-              {notification.message}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setNotification(null)}
-            className="text-[#8C3A02]/60 hover:text-[#8C3A02] text-xs font-bold uppercase cursor-pointer"
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
     </div>
   );
 }

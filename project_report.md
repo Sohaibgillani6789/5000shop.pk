@@ -1,8 +1,13 @@
 # 5 Hazaar Tak — Project Report
 
+> [!CAUTION]
+> **ARCHITECTURAL DEPRECATION NOTICE (Effective October 2026)**:
+> References in this historical report to **Sanity CMS**, `@sanity/client`, Sanity schemas, and Sanity Studio are **completely obsolete**.
+> The active production database and backend architecture is **Supabase** (PostgreSQL, Row Level Security, `@supabase/ssr`, and atomic SQL RPC functions). Do NOT attempt to migrate back to Sanity. Always treat the actual Next.js 16 + Supabase codebase on disk as the sole source of truth.
+
 > **Project**: 5 Hazaar Tak — Pakistan's Smartest Marketplace  
-> **Report Generated**: 2026-08-26  
-> **Status**: 🟢 In Progress  
+> **Report Generated**: 2026-08-26 (Updated: 2026-10-18)  
+> **Status**: 🟢 In Progress (Supabase Architecture Active)  
 
 ---
 

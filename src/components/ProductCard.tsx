@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -18,7 +19,12 @@ export default function ProductCard({
   layoutMode = "carousel",
   className = "",
 }: ProductCardProps) {
-  const isPng = product.image_url?.endsWith(".png");
+  const [imgSrc, setImgSrc] = useState(
+    product.image_url && product.image_url.trim() !== ""
+      ? product.image_url
+      : "/images/hero-sneakers.png"
+  );
+  const isPng = imgSrc?.endsWith(".png");
   const isGrid = layoutMode === "grid";
 
   // Derive badge from the first tag, falling back to "NEW"
@@ -68,11 +74,12 @@ export default function ProductCard({
         }}
       >
         <Image
-          src={product.image_url}
+          src={imgSrc}
           alt={product.title}
           fill
           priority={priority}
           sizes={isGrid ? "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" : "240px"}
+          onError={() => setImgSrc("/images/hero-sneakers.png")}
           style={{
             objectFit: isPng ? "contain" : "cover",
             padding: isPng ? "1.25rem" : "0",

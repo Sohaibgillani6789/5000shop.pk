@@ -490,9 +490,11 @@ export default function CategoryShowcase() {
           lineHeight: 0,
         }}
       >
-        <img
+        <Image
           src="/images/sectionbackground.jpg"
           alt=""
+          width={800}
+          height={600}
           style={{
             width: "100%",
             height: "auto",

@@ -320,7 +320,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               {/* Interactive Purchase Controls */}
               <div className="mt-6 pt-2">
                 <ProductActions
+                  productId={product.id}
+                  slug={product.slug}
+                  title={product.title}
                   price={product.price}
+                  imageUrl={product.image_url}
                   inStock={product.in_stock}
                 />
               </div>
