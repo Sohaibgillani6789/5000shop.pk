@@ -29,6 +29,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://5000shop.pk'),
   title: "5 Hazaar Tak — Pakistan's Smartest Marketplace | Everything Under ₨5,000",
   description:
     "Discover curated Fashion, Beauty, Electronics, Home & Accessories — all under ₨5,000. Premium quality at unbeatable prices, delivered across Pakistan.",
@@ -41,6 +42,9 @@ export const metadata: Metadata = {
     "budget electronics",
     "beauty products Pakistan",
   ],
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: "5 Hazaar Tak — Everything Under ₨5,000",
     description:
@@ -62,10 +66,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     "@context": "https://schema.org",
     "@type": "OnlineStore",
     "name": "5 Hazaar Tak",
-    "url": "https://5hazaartak.pk",
+    "url": "https://5000shop.pk",
     "description": "Pakistan's smartest marketplace — curated Fashion, Beauty, Electronics, Home & Accessories under ₨5,000.",
     "currenciesAccepted": "PKR",
-    "paymentAccepted": "Cash on Delivery, Mobile Wallet, Credit Card",
+    "paymentAccepted": "Cash on Delivery",
     "priceRange": "₨1 - ₨5000",
     "address": {
       "@type": "PostalAddress",

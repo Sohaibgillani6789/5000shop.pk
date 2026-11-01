@@ -44,10 +44,10 @@ function AnimatedCounter({ from = 0, to, prefix = "", suffix = "", duration = 2 
 }
 
 const trustPillars = [
-  { id: "cod", icon: Truck, title: "Nationwide Cash on Delivery", subtitle: "150+ Cities Covered", description: "Pay conveniently at your doorstep anywhere in Pakistan with our trusted logistics network.", badge: "Pak-Wide COD" },
-  { id: "ceiling", icon: ShieldCheck, title: "Strict ₨5,000 Price Ceiling", subtitle: "Zero Price Inflation", description: "Every item is hard-capped at ₨5,000. No hidden surcharges, no surprise delivery hikes.", badge: "100% Guaranteed" },
-  { id: "returns", icon: RefreshCw, title: "7-Day Easy Returns", subtitle: "Risk-Free Shopping", description: "Not satisfied? Return or exchange hassle-free within 7 business days.", badge: "Instant Refund" },
-  { id: "craft", icon: Award, title: "Curated Craftsmanship", subtitle: "Verified Local Suppliers", description: "Direct-from-manufacturer sourcing ensures premium grade materials without retailer markups.", badge: "Quality Audited" },
+  { id: "cod", icon: Truck, title: "Nationwide Cash on Delivery", subtitle: "All Major Cities & Beyond", description: "Pay conveniently at your doorstep anywhere in Pakistan with licensed logistics couriers.", badge: "Pak-Wide COD" },
+  { id: "ceiling", icon: ShieldCheck, title: "Strict ₨5,000 Price Ceiling", subtitle: "Zero Price Inflation", description: "Every item is hard-capped at ₨5,000. Flat ₨250 delivery fee with zero hidden surcharges.", badge: "Price Capped" },
+  { id: "returns", icon: RefreshCw, title: "7-Day Return Policy", subtitle: "Defect & Damage Protection", description: "Receive a damaged or incorrect parcel? Contact WhatsApp support within 7 days for exchange or refund.", badge: "Policy Backed" },
+  { id: "craft", icon: Award, title: "Curated Pakistani Catalog", subtitle: "Direct Sourcing", description: "Direct-from-supplier sourcing ensures accessible prices across fashion, beauty, electronics, and home.", badge: "Handpicked" },
 ];
 
 export default function NarrativeSection() {
@@ -169,9 +169,9 @@ export default function NarrativeSection() {
 
           {[
             { prefix: "₨", to: 5000, suffix: "", label: "Maximum Price Cap", badge: "Guaranteed Ceiling", badgeColor: "#F59E0B", badgeBg: "rgba(217,119,6,0.15)", isGold: true },
-            { prefix: "", to: 100, suffix: "%", label: "Quality Audited", badge: "Verified Suppliers", badgeColor: "#E5B84C", badgeBg: "rgba(201,146,42,0.12)", isGold: false },
+            { prefix: "₨", to: 250, suffix: "", label: "Standard Delivery", badge: "Flat Nationwide", badgeColor: "#E5B84C", badgeBg: "rgba(201,146,42,0.12)", isGold: false },
             { prefix: "", to: 5, suffix: "", label: "Core Verticals", badge: "Curated Index", badgeColor: "rgba(255,255,255,0.7)", badgeBg: "rgba(255,255,255,0.06)", isGold: true },
-            { prefix: "", to: 24, suffix: "h", label: "Avg Dispatch Time", badge: "Fast Nationwide", badgeColor: "#F59E0B", badgeBg: "rgba(217,119,6,0.15)", isGold: false },
+            { prefix: "", to: 7, suffix: "d", label: "Return Window", badge: "Terms Apply", badgeColor: "#F59E0B", badgeBg: "rgba(217,119,6,0.15)", isGold: false },
           ].map((stat, i) => (
             <motion.div key={i} variants={itemVariants} style={{ textAlign: "center" }}>
               <div style={{ fontSize: "clamp(2rem,4vw,3.5rem)", fontWeight: 900, letterSpacing: "-0.04em", background: stat.isGold ? "linear-gradient(135deg,#C9922A,#E5B84C,#C9922A)" : "linear-gradient(135deg,#FFFFFF,rgba(255,255,255,0.8))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>

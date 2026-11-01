@@ -55,6 +55,9 @@ export async function generateMetadata({
         },
       ],
     },
+    alternates: {
+      canonical: `/product/${slug}`,
+    },
   };
 }
 
@@ -93,14 +96,21 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.title,
+    sku: product.sku || product.slug,
+    url: `https://5000shop.pk/product/${product.slug}`,
     image: product.image_url.startsWith("http")
       ? product.image_url
       : `https://5000shop.pk${product.image_url}`,
     description: product.description || product.title,
+    brand: {
+      "@type": "Brand",
+      name: "5 Hazaar Tak",
+    },
     offers: {
       "@type": "Offer",
       price: product.price,
       priceCurrency: "PKR",
+      url: `https://5000shop.pk/product/${product.slug}`,
       availability: product.in_stock
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
@@ -221,10 +231,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               <div className="flex items-center justify-between px-4 py-3 rounded-2xl bg-[#F5EFE4] border border-[#E2D5BE] text-xs font-semibold text-[#665649] font-['Outfit',var(--font-outfit),sans-serif]">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-[#F47514]" />
-                  <span>100% Quality Audited Before Dispatch</span>
+                  <span>Physical Item Inspection Before Dispatch</span>
                 </div>
                 <span className="text-[11px] uppercase font-bold text-[#9C6D1F]">
-                  Authentic Guarantee
+                  {product.sku ? `SKU: ${product.sku}` : 'Verified Quality'}
                 </span>
               </div>
             </div>
@@ -331,21 +341,27 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
               {/* Marketplace Trust Perks */}
               <div className="mt-8 pt-6 border-t border-[rgba(180,150,120,0.25)] grid grid-cols-2 gap-3 text-xs font-medium text-[#4A3B32]">
-                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-white border border-[#E5DAC8] shadow-xs">
+                <Link
+                  href="/shipping-policy"
+                  className="flex items-center gap-2.5 p-3 rounded-xl bg-white hover:bg-[#FAF6F0] border border-[#E5DAC8] shadow-xs transition-colors group"
+                >
                   <Truck className="w-4 h-4 text-[#F47514] shrink-0" />
-                  <span>Free delivery over ₨5,000</span>
-                </div>
+                  <span className="group-hover:text-[#F47514] transition-colors">Standard Delivery ₨250</span>
+                </Link>
                 <div className="flex items-center gap-2.5 p-3 rounded-xl bg-white border border-[#E5DAC8] shadow-xs">
                   <Award className="w-4 h-4 text-[#F47514] shrink-0" />
                   <span>Cash on Delivery Pakistan</span>
                 </div>
-                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-white border border-[#E5DAC8] shadow-xs">
+                <Link
+                  href="/return-policy"
+                  className="flex items-center gap-2.5 p-3 rounded-xl bg-white hover:bg-[#FAF6F0] border border-[#E5DAC8] shadow-xs transition-colors group"
+                >
                   <RefreshCw className="w-4 h-4 text-[#F47514] shrink-0" />
-                  <span>7-Day Return Guarantee</span>
-                </div>
+                  <span className="group-hover:text-[#F47514] transition-colors">7-Day Return Policy</span>
+                </Link>
                 <div className="flex items-center gap-2.5 p-3 rounded-xl bg-white border border-[#E5DAC8] shadow-xs">
                   <ShieldCheck className="w-4 h-4 text-[#F47514] shrink-0" />
-                  <span>Guaranteed Price Under ₨5K</span>
+                  <span>Strictly Under ₨5,000</span>
                 </div>
               </div>
             </div>

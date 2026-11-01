@@ -9,6 +9,7 @@ import {
   getCategorySlugs,
 } from "@/lib/supabase/products";
 import ProductCard from "@/components/ProductCard";
+import Footer from "@/components/Footer";
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
@@ -50,8 +51,11 @@ export async function generateMetadata({
       title: `${category.name} Under ₨5,000 | 5 Hazaar Tak`,
       description:
         category.description ||
-        `Curated ${category.name} under ₨5,000. 100% quality audited.`,
+        `Curated ${category.name} strictly under ₨5,000. Nationwide Cash on Delivery.`,
       type: "website",
+    },
+    alternates: {
+      canonical: `/category/${slug}`,
     },
   };
 }
@@ -209,6 +213,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           )}
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

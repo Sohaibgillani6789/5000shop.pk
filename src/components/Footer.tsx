@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import {
   ArrowUp,
@@ -155,11 +156,25 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Footer Bottom Bar with Sleek Back to Top */}
-        <div className="relative z-10 flex items-center justify-between gap-4 pt-2.5 border-t border-[rgba(255,220,180,0.25)] font-['Outfit',var(--font-outfit),sans-serif]">
-          <span className="text-xs font-semibold text-[#FFF5EB]/90 tracking-wider uppercase">
-            5 HAZAAR TAK
-          </span>
+        {/* Footer Bottom Bar with Policy Links & Sleek Back to Top */}
+        <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 pt-2.5 border-t border-[rgba(255,220,180,0.25)] font-['Outfit',var(--font-outfit),sans-serif]">
+          <div className="flex items-center gap-3 sm:gap-6 flex-wrap">
+            <span className="text-xs font-semibold text-[#FFF5EB]/90 tracking-wider uppercase">
+              5 HAZAAR TAK
+            </span>
+            <Link
+              href="/shipping-policy"
+              className="text-xs font-medium text-[#FFF5EB]/75 hover:text-white uppercase tracking-wider transition-colors"
+            >
+              Shipping &amp; COD Policy
+            </Link>
+            <Link
+              href="/return-policy"
+              className="text-xs font-medium text-[#FFF5EB]/75 hover:text-white uppercase tracking-wider transition-colors"
+            >
+              Return Policy
+            </Link>
+          </div>
 
           <AnchorLink
             href="#home"

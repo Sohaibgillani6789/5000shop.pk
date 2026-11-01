@@ -64,8 +64,8 @@ export default function ProductActions({
       quantity
     );
 
-    // Direct routing to cart/checkout stage
-    router.push("/cart");
+    // Direct routing to checkout stage
+    router.push("/checkout");
   };
 
   if (!inStock) {

@@ -34,6 +34,7 @@ export interface Product {
   in_stock: boolean;
   display_order: number;
   tags: string[];
+  sku?: string | null;
   created_at: string;
   updated_at: string;
 }

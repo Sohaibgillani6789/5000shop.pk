@@ -80,18 +80,18 @@ const FLOATING_PRODUCTS = [
 const TRUST_PILLARS = [
   {
     icon: <Truck size={18} strokeWidth={2.2} />,
-    title: "FAST DELIVERY",
+    title: "NATIONWIDE DISPATCH",
     subtitle: "All Over Pakistan",
   },
   {
     icon: <ShieldCheck size={18} strokeWidth={2.2} />,
-    title: "SECURE PAYMENT",
-    subtitle: "100% Safe & Secure",
+    title: "CASH ON DELIVERY",
+    subtitle: "Pay at Doorstep",
   },
   {
     icon: <Star size={18} strokeWidth={2.2} />,
-    title: "BEST QUALITY",
-    subtitle: "Products You Can Trust",
+    title: "PRICE CEILING",
+    subtitle: "Strictly Under ₨5,000",
   },
 ];
 

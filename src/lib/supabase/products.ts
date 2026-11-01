@@ -548,3 +548,31 @@ export async function getRelatedProducts(
     limit,
   )
 }
+
+// ── getAllProductsForSitemap ──────────────────────────────────
+
+/**
+ * Fetch all in-stock product slugs and updated_at timestamps for sitemap generation.
+ */
+export async function getAllProductsForSitemap(): Promise<{ slug: string; updated_at: string }[]> {
+  try {
+    const supabase = await createClient()
+    const { data } = await supabase
+      .from('products')
+      .select('slug, updated_at')
+      .eq('in_stock', true)
+      .order('display_order', { ascending: true })
+
+    if (data && data.length > 0) {
+      return data as { slug: string; updated_at: string }[]
+    }
+  } catch {
+    // Ignore and fallback
+  }
+
+  return FALLBACK_PRODUCTS.map((p) => ({
+    slug: p.slug,
+    updated_at: p.updated_at,
+  }))
+}
+

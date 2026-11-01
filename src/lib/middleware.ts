@@ -40,12 +40,16 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protect Admin routes only. All customer-facing storefront routes
+  // Protect Admin routes only (excluding the login page itself). All customer-facing storefront routes
   // (/, /category/*, /product/*, /cart, /checkout, /order-confirmation/*)
   // MUST remain accessible to guest shoppers without authentication.
-  if (request.nextUrl.pathname.startsWith('/admin') && !user) {
+  if (
+    request.nextUrl.pathname.startsWith('/admin') &&
+    request.nextUrl.pathname !== '/admin/login' &&
+    !user
+  ) {
     const loginUrl = request.nextUrl.clone()
-    loginUrl.pathname = '/auth/login'
+    loginUrl.pathname = '/admin/login'
     loginUrl.searchParams.set('redirectTo', request.nextUrl.pathname)
     return NextResponse.redirect(loginUrl)
   }
