@@ -23,6 +23,8 @@ import {
   computeDeliveryFee,
   computeOrderTotal,
 } from '@/lib/checkout/pricing'
+import { getSupabasePublicConfig } from '@/lib/env/public'
+import { getServiceRoleKey } from '@/lib/env/server'
 import type {
   OrderLineItem,
   OrderPayload,
@@ -33,14 +35,8 @@ import type {
 // ── Service-Role Supabase Client (Server-Only) ──────────────
 
 function createServiceClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-  if (!url || !serviceKey) {
-    throw new Error(
-      'Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables'
-    )
-  }
+  const { url } = getSupabasePublicConfig()
+  const serviceKey = getServiceRoleKey()
 
   return createServerClient(url, serviceKey, {
     cookies: {
@@ -232,7 +228,10 @@ export async function createOrder(
   )
 
   if (rpcError) {
-    console.error('[5000shop] Order RPC failed:', rpcError)
+    console.error('[5000shop] Order RPC failed:', {
+      code: rpcError.code,
+      message: rpcError.message,
+    })
     const err: CreateOrderError = {
       status: 500,
       message: 'Failed to place order. Please try again.',

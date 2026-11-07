@@ -15,6 +15,7 @@ import {
   Lock,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { getWhatsAppLink } from "@/lib/env/public";
 import Footer from "@/components/Footer";
 
 interface PageProps {
@@ -66,11 +67,9 @@ export default async function OrderConfirmationPage({
   const { orderNumber } = await params;
   const { token } = await searchParams;
 
-  const whatsappNumber =
-    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "923001234567";
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+  const whatsappUrl = getWhatsAppLink(
     `Assalam-o-Alaikum! I just placed order ${orderNumber} on 5 Hazaar Tak.`
-  )}`;
+  );
 
   let orderData: OrderConfirmationData | null = null;
 
@@ -96,7 +95,7 @@ export default async function OrderConfirmationPage({
     return (
       <div className="min-h-screen bg-[#050708] text-white flex flex-col font-['Outfit',var(--font-outfit),sans-serif]">
         <main
-          className="flex-1 py-16 sm:py-24"
+          className="flex-1 relative z-10 py-16 sm:py-24"
           style={{
             background: "linear-gradient(180deg, #FFFFFF 0%, #FAF8F5 100%)",
             color: "#1A1108",
@@ -205,7 +204,7 @@ export default async function OrderConfirmationPage({
 
       {/* ── Main Confirmation Stage ── */}
       <main
-        className="flex-1 py-10 sm:py-16"
+        className="flex-1 relative z-10 py-10 sm:py-16"
         style={{
           background: "linear-gradient(180deg, #FFFFFF 0%, #FAF8F5 100%)",
           color: "#1A1108",

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowLeft, Truck, Clock, MapPin, ShieldCheck, PhoneCall, HelpCircle } from 'lucide-react'
+import { getWhatsAppLink } from '@/lib/env/public'
 import Footer from '@/components/Footer'
 
 export const metadata: Metadata = {
@@ -43,7 +44,7 @@ export default function ShippingPolicyPage() {
       </section>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 pb-20 font-['Outfit',var(--font-outfit),sans-serif]">
+      <main className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 pb-20 font-['Outfit',var(--font-outfit),sans-serif]">
         <div className="space-y-8">
           {/* Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -139,7 +140,7 @@ export default function ShippingPolicyPage() {
             </p>
             <div className="pt-2">
               <a
-                href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923000000000'}?text=${encodeURIComponent('Assalam-o-Alaikum! I have a question about shipping on 5 Hazaar Tak.')}`}
+                href={getWhatsAppLink('Assalam-o-Alaikum! I have a question about shipping on 5 Hazaar Tak.')}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#F47514] hover:bg-[#DF5E03] text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-lg"

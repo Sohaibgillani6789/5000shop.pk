@@ -8,7 +8,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { createBrowserClient } from '@supabase/ssr'
+import { createClient } from '@/lib/supabase/client'
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -129,11 +129,7 @@ export default function AdminShell({ adminEmail, children }: AdminShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
 
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
-  )
+  const supabase = createClient()
 
   async function handleSignOut() {
     setSigningOut(true)

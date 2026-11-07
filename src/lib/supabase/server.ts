@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { getSupabasePublicConfig } from '@/lib/env/public'
 
 /**
  * If using Fluid compute: Don't put this client in a global variable. Always create a new client within each
@@ -14,13 +15,11 @@ export async function createClient() {
     cookieStore = null
   }
 
-  const supabaseKey =
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
+  const { url, anonKey } = getSupabasePublicConfig()
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    supabaseKey,
+    url,
+    anonKey,
     {
       cookies: {
         getAll() {
@@ -35,7 +34,7 @@ export async function createClient() {
             }
           } catch {
             // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
+            // This can be ignored because src/proxy.ts refreshes
             // user sessions.
           }
         },

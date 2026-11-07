@@ -17,6 +17,8 @@
 import 'server-only'
 import { createClient as createServerClient } from '@/lib/supabase/server'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { getSupabasePublicConfig } from '@/lib/env/public'
+import { getAdminEmails, getServiceRoleKey } from '@/lib/env/server'
 
 // ── Typed Admin Auth Error ─────────────────────────────────────
 
@@ -38,14 +40,8 @@ export class AdminAuthError extends Error {
  * Never expose this client to browser bundles.
  */
 export function createAdminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-  if (!url || !serviceRoleKey) {
-    throw new Error(
-      '[admin] NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is not configured.'
-    )
-  }
+  const { url } = getSupabasePublicConfig()
+  const serviceRoleKey = getServiceRoleKey()
 
   return createSupabaseClient(url, serviceRoleKey, {
     auth: {
@@ -77,21 +73,17 @@ export async function verifyAdminUser(): Promise<{ id: string; email: string }> 
     throw new AdminAuthError('Authentication required. Please sign in.', 401)
   }
 
-  // Parse ADMIN_EMAILS: comma-separated list of authorized admin emails
-  const rawAdminEmails = process.env.ADMIN_EMAILS ?? ''
-  const allowlist = rawAdminEmails
-    .split(',')
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean)
+  // ADMIN_EMAILS authorizes an already-authenticated session (never a bypass)
+  const allowlist = getAdminEmails()
 
-  if (allowlist.length === 0) {
+  if (allowlist.size === 0) {
     throw new AdminAuthError(
       'Admin access is not configured. Set ADMIN_EMAILS in your environment.',
       403
     )
   }
 
-  if (!allowlist.includes(user.email.toLowerCase())) {
+  if (!allowlist.has(user.email.trim().toLowerCase())) {
     throw new AdminAuthError(
       'Access denied. Your account is not authorized for admin access.',
       403

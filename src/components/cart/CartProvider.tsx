@@ -8,7 +8,12 @@ import React, {
   useMemo,
   useSyncExternalStore,
 } from "react";
-import type { CartItemType, CartContextValue } from "@/lib/cart/cart-types";
+import { usePathname } from "next/navigation";
+import type {
+  CartItemType,
+  CartContextValue,
+  AddItemOptions,
+} from "@/lib/cart/cart-types";
 import {
   getCartSnapshot,
   getCartServerSnapshot,
@@ -28,6 +33,17 @@ const EMPTY_ITEMS: CartItemType[] = [];
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
+
+  // ── Auto-close the drawer on route change ──
+  // Uses React's "adjust state during render" pattern (no effect → no extra
+  // commit / flash). Prevents the drawer + backdrop from persisting over the
+  // next page (e.g. after Buy Now → /checkout or a category switch).
+  const pathname = usePathname();
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    setIsOpen(false);
+  }
 
   // ── React 19 Hydration Integrity via useSyncExternalStore ──
   const isHydrated = useSyncExternalStore(
@@ -51,7 +67,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const closeCart = useCallback(() => setIsOpen(false), []);
 
   const addItem = useCallback(
-    (item: Omit<CartItemType, "quantity">, quantity: number = 1) => {
+    (
+      item: Omit<CartItemType, "quantity">,
+      quantity: number = 1,
+      options?: AddItemOptions
+    ) => {
       const addQty = clampQuantity(quantity);
       const currentItems = getCartSnapshot();
 
@@ -79,7 +99,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
 
       setCartItems(updated);
-      setIsOpen(true);
+      if (options?.openDrawer !== false) {
+        setIsOpen(true);
+      }
     },
     []
   );

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowLeft, RefreshCw, CheckCircle2, HelpCircle, PhoneCall, ShieldAlert } from 'lucide-react'
+import { getWhatsAppNumber, getWhatsAppLink } from '@/lib/env/public'
 import Footer from '@/components/Footer'
 
 export const metadata: Metadata = {
@@ -43,7 +44,7 @@ export default function ReturnPolicyPage() {
       </section>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 pb-20 font-['Outfit',var(--font-outfit),sans-serif]">
+      <main className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 pb-20 font-['Outfit',var(--font-outfit),sans-serif]">
         <div className="space-y-8">
           {/* Key Principles Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -120,7 +121,7 @@ export default function ReturnPolicyPage() {
                 <strong className="text-white">Record Evidence:</strong> Take a clear photo or short 5-second video of the defective item and the courier parcel label showing your Order Number (e.g. 5HT-...).
               </li>
               <li>
-                <strong className="text-white">Contact Dispatch via WhatsApp:</strong> Send your order number and photos to our support line at <span className="font-mono text-amber-300">+{process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923000000000'}</span>.
+                <strong className="text-white">Contact Dispatch via WhatsApp:</strong> Send your order number and photos to our support line at <span className="font-mono text-amber-300">+{getWhatsAppNumber()}</span>.
               </li>
               <li>
                 <strong className="text-white">Dispatch Verification:</strong> Our logistics supervisor will inspect the claim within 24 business hours and issue return authorization.
@@ -142,7 +143,7 @@ export default function ReturnPolicyPage() {
             </p>
             <div className="pt-2">
               <a
-                href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923000000000'}?text=${encodeURIComponent('Assalam-o-Alaikum! I want to request a return or exchange for my order.')}`}
+                href={getWhatsAppLink('Assalam-o-Alaikum! I want to request a return or exchange for my order.')}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#F47514] hover:bg-[#DF5E03] text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-lg"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ShoppingCart, Search, User, Truck } from "lucide-react";
 import { AnchorLink } from "./SmoothScroll";
@@ -17,13 +18,39 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const { itemCount, openCart, isHydrated } = useCart();
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [announcementHeight, setAnnouncementHeight] = useState(0);
   const announcementRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
 
+  // Close the slide panel whenever the route changes (render-phase adjustment,
+  // avoids a stale open panel / body scroll-lock when switching categories).
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    setIsPanelOpen(false);
+  }
+
+  // rAF-throttled, passive scroll listener. Only commits a React update when
+  // the boolean threshold actually flips — zero re-renders while scrolling.
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    let ticking = false;
+    let last = false;
+    const handleScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        const next = window.scrollY > 50;
+        if (next !== last) {
+          last = next;
+          setIsScrolled(next);
+        }
+      });
+    };
+    handleScroll(); // sync initial state (e.g. restored scroll position)
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -34,6 +61,20 @@ export default function Navbar() {
     const ro = new ResizeObserver(() => setAnnouncementHeight(bar.offsetHeight));
     ro.observe(bar);
     setAnnouncementHeight(bar.offsetHeight);
+    return () => ro.disconnect();
+  }, []);
+
+  // Publish the real fixed-header height as a CSS variable so pages can offset
+  // their content precisely (no overlap / jump under the fixed navbar).
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header) return;
+    const root = document.documentElement;
+    const publish = () =>
+      root.style.setProperty("--site-header-height", `${header.offsetHeight}px`);
+    const ro = new ResizeObserver(publish);
+    ro.observe(header);
+    publish();
     return () => ro.disconnect();
   }, []);
 
@@ -50,12 +91,17 @@ export default function Navbar() {
     <>
       <header
         id="site-header"
+        ref={headerRef}
         style={{
           position: "fixed",
           top: 0,
           left: 0,
           right: 0,
           zIndex: 1060,
+          // Promote to its own compositor layer → no repaint of the fixed
+          // header while the page scrolls underneath.
+          transform: "translateZ(0)",
+          willChange: "transform",
         }}
       >
         {/* Announcement Bar — always visible, even when panel is open */}
@@ -151,89 +197,32 @@ export default function Navbar() {
                 marginLeft: "auto",
                 display: "flex",
                 alignItems: "center",
-                gap: "0.15rem",
+                gap: "0.4rem",
+                paddingRight: "0.5rem",
               }}
             >
               <button
                 aria-label="Search"
                 className="nav-icon-btn desktop-only-icon"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: "40px",
-                  height: "40px",
-                  background: "transparent",
-                  border: "none",
-                  color: "rgba(255,255,255,0.7)",
-                  cursor: "pointer",
-                  borderRadius: "8px",
-                  transition: "all 0.2s ease",
-                }}
               >
-                <Search size={19} strokeWidth={2} />
+                <Search size={18} strokeWidth={2.2} />
               </button>
 
               <button
                 aria-label="Account"
                 className="nav-icon-btn desktop-only-icon"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: "40px",
-                  height: "40px",
-                  background: "transparent",
-                  border: "none",
-                  color: "rgba(255,255,255,0.7)",
-                  cursor: "pointer",
-                  borderRadius: "8px",
-                  transition: "all 0.2s ease",
-                }}
               >
-                <User size={19} strokeWidth={2} />
+                <User size={18} strokeWidth={2.2} />
               </button>
 
               <button
                 type="button"
                 onClick={openCart}
                 aria-label={`Open shopping cart with ${isHydrated ? itemCount : 0} items`}
-                className="nav-icon-btn"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: "40px",
-                  height: "40px",
-                  background: "transparent",
-                  border: "none",
-                  color: "rgba(255,255,255,0.7)",
-                  cursor: "pointer",
-                  borderRadius: "8px",
-                  transition: "all 0.2s ease",
-                  position: "relative",
-                }}
+                className="nav-icon-btn cart-icon-btn"
               >
-                <ShoppingCart size={19} strokeWidth={2} />
-                <span
-                  style={{
-                    position: "absolute",
-                    top: "5px",
-                    right: "5px",
-                    minWidth: "16px",
-                    height: "16px",
-                    padding: "0 3px",
-                    borderRadius: "8px",
-                    background: "#F47514",
-                    color: "#000",
-                    fontSize: "0.6rem",
-                    fontWeight: 800,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    lineHeight: 1,
-                  }}
-                >
+                <ShoppingCart size={18} strokeWidth={2.2} />
+                <span className="cart-badge">
                   {isHydrated ? itemCount : 0}
                 </span>
               </button>
@@ -424,9 +413,54 @@ export default function Navbar() {
         .hamburger-btn:hover .hb-top { transform: translateX(3px); }
         .hamburger-btn:hover .hb-mid { width: 26px; }
         .hamburger-btn:hover .hb-bot { transform: translateX(-3px); }
+        .nav-icon-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 38px;
+          height: 38px;
+          background: #000000;
+          border: 1.5px solid rgba(244, 117, 20, 0.45);
+          color: #F47514;
+          cursor: pointer;
+          border-radius: 50%;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+          position: relative;
+        }
         .nav-icon-btn:hover {
-          color: #f47514 !important;
-          background: rgba(244, 117, 20, 0.08) !important;
+          background: #F47514 !important;
+          color: #000000 !important;
+          border-color: #F47514 !important;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 14px rgba(244, 117, 20, 0.45);
+        }
+        .nav-icon-btn:active {
+          transform: scale(0.94);
+        }
+        .cart-badge {
+          position: absolute;
+          top: -3px;
+          right: -3px;
+          min-width: 17px;
+          height: 17px;
+          padding: 0 4px;
+          border-radius: 10px;
+          background: #F47514;
+          color: #000000;
+          font-size: 0.625rem;
+          font-weight: 900;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          line-height: 1;
+          border: 1.5px solid #000000;
+          transition: all 0.2s ease;
+        }
+        .cart-icon-btn:hover .cart-badge {
+          background: #000000;
+          color: #F47514;
+          border-color: #F47514;
         }
         .panel-nav-link {
           display: block;

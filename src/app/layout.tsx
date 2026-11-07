@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Outfit } from "next/font/google";
+import localFont from "next/font/local";
+import { getSiteUrl } from "@/lib/env/public";
 import "./globals.css";
 import { SmoothScrollProvider } from "@/components/SmoothScroll";
 import Navbar from "@/components/Navbar";
@@ -7,17 +8,24 @@ import WebsiteLoader from "@/components/WebsiteLoader";
 import { CartProvider } from "@/components/cart/CartProvider";
 import CartDrawer from "@/components/cart/CartDrawer";
 
+// Fonts are self-hosted (latin variable woff2 from Fontsource, SIL OFL 1.1) so that
+// `next build` never depends on fonts.googleapis.com being reachable.
+
 // Body font: clean, modern, highly legible
-const inter = Inter({
+const inter = localFont({
+  src: "./fonts/Inter-latin-variable.woff2",
   variable: "--font-inter",
-  subsets: ["latin"],
+  weight: "100 900",
+  style: "normal",
   display: "swap",
 });
 
 // Display font: bold, impactful for headlines
-const outfit = Outfit({
+const outfit = localFont({
+  src: "./fonts/Outfit-latin-variable.woff2",
   variable: "--font-outfit",
-  subsets: ["latin"],
+  weight: "100 900",
+  style: "normal",
   display: "swap",
 });
 
@@ -29,7 +37,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://5000shop.pk'),
+  metadataBase: new URL(getSiteUrl()),
   title: "5 Hazaar Tak — Pakistan's Smartest Marketplace | Everything Under ₨5,000",
   description:
     "Discover curated Fashion, Beauty, Electronics, Home & Accessories — all under ₨5,000. Premium quality at unbeatable prices, delivered across Pakistan.",
@@ -66,7 +74,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     "@context": "https://schema.org",
     "@type": "OnlineStore",
     "name": "5 Hazaar Tak",
-    "url": "https://5000shop.pk",
+    "url": getSiteUrl(),
     "description": "Pakistan's smartest marketplace — curated Fashion, Beauty, Electronics, Home & Accessories under ₨5,000.",
     "currenciesAccepted": "PKR",
     "paymentAccepted": "Cash on Delivery",

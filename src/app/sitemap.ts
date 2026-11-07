@@ -1,8 +1,9 @@
 import type { MetadataRoute } from 'next'
 import { getCategorySlugs, getAllProductsForSitemap } from '@/lib/supabase/products'
+import { getSiteUrl } from '@/lib/env/public'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://5000shop.pk'
+  const baseUrl = getSiteUrl()
 
   const [categorySlugs, products] = await Promise.all([
     getCategorySlugs(),

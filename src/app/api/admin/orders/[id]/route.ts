@@ -114,7 +114,10 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ error: 'Order not found.' }, { status: 404 })
     }
 
-    console.error('[admin] Order update error:', updateError)
+    console.error('[admin] Order update error:', {
+      code: updateError.code,
+      message: updateError.message,
+    })
     return NextResponse.json(
       { error: 'Failed to update order. Please try again.' },
       { status: 500 }

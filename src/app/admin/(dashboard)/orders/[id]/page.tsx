@@ -27,6 +27,7 @@ import {
   CreditCard,
 } from 'lucide-react'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getWhatsAppNumber } from '@/lib/env/public'
 import type {
   AdminOrderWithItems,
   OrderStatus,
@@ -105,7 +106,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
   }
 
   const typedOrder = order as AdminOrderWithItems
-  const whatsappNum = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? ''
+  const whatsappNum = getWhatsAppNumber()
   const waText = encodeURIComponent(
     `Assalam-o-Alaikum! Calling about order ${typedOrder.order_number} on 5 Hazaar Tak. Please confirm your order.`
   )

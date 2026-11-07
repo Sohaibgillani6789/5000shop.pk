@@ -54,7 +54,7 @@ export default function CheckoutPage() {
 
       {/* ── Main Stage ── */}
       <main
-        className="flex-1 py-10 sm:py-16"
+        className="flex-1 relative z-10 py-10 sm:py-16"
         style={{
           background: "linear-gradient(180deg, #FFFFFF 0%, #FAF8F5 100%)",
           color: "#1A1108",

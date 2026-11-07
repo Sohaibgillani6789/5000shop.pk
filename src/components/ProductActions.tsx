@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, Zap, Minus, Plus, AlertCircle, Check } from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
+import { MAX_ITEM_QUANTITY, MIN_ITEM_QUANTITY } from "@/lib/cart/cart-utils";
 
 interface ProductActionsProps {
   productId: string;
@@ -12,6 +13,8 @@ interface ProductActionsProps {
   price: number;
   imageUrl?: string | null;
   inStock: boolean;
+  /** Optional stock ceiling (if inventory count is ever exposed). Capped at MAX_ITEM_QUANTITY. */
+  maxStock?: number;
 }
 
 export default function ProductActions({
@@ -21,48 +24,84 @@ export default function ProductActions({
   price,
   imageUrl,
   inStock,
+  maxStock,
 }: ProductActionsProps) {
   const router = useRouter();
-  const { addItem } = useCart();
-  const [quantity, setQuantity] = useState(1);
+  const { addItem, closeCart } = useCart();
+  const [quantity, setQuantity] = useState<number>(MIN_ITEM_QUANTITY);
   const [isAdded, setIsAdded] = useState(false);
+  const [isBuying, setIsBuying] = useState(false);
+  const addedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const increment = () => setQuantity((prev) => Math.min(10, prev + 1));
-  const decrement = () => setQuantity((prev) => Math.max(1, prev - 1));
+  // Effective ceiling: respect stock if provided, never exceed cart hard limit
+  const maxQty = Math.max(
+    MIN_ITEM_QUANTITY,
+    Math.min(MAX_ITEM_QUANTITY, maxStock ?? MAX_ITEM_QUANTITY)
+  );
 
-  const handleAddToCart = () => {
+  // Clear pending "Added" feedback timer on unmount (avoids setState on unmounted)
+  useEffect(() => {
+    return () => {
+      if (addedTimerRef.current) clearTimeout(addedTimerRef.current);
+    };
+  }, []);
+
+  // Prefetch checkout so Buy Now navigation is instant
+  useEffect(() => {
+    if (inStock) router.prefetch("/checkout");
+  }, [inStock, router]);
+
+  const increment = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setQuantity((prev) => Math.min(maxQty, prev + 1));
+    },
+    [maxQty]
+  );
+
+  const decrement = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setQuantity((prev) => Math.max(MIN_ITEM_QUANTITY, prev - 1));
+  }, []);
+
+  const buildPayload = useCallback(
+    () => ({
+      productId,
+      slug,
+      title,
+      price,
+      imageUrl: imageUrl || null,
+    }),
+    [productId, slug, title, price, imageUrl]
+  );
+
+  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (!inStock) return;
 
-    addItem(
-      {
-        productId,
-        slug,
-        title,
-        price,
-        imageUrl: imageUrl || null,
-      },
-      quantity
-    );
+    // Synchronous external-store write → Navbar badge updates in the same tick
+    addItem(buildPayload(), quantity);
 
     setIsAdded(true);
-    setTimeout(() => {
+    if (addedTimerRef.current) clearTimeout(addedTimerRef.current);
+    addedTimerRef.current = setTimeout(() => {
       setIsAdded(false);
     }, 1800);
   };
 
-  const handleBuyNow = () => {
-    if (!inStock) return;
+  const handleBuyNow = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!inStock || isBuying) return;
 
-    addItem(
-      {
-        productId,
-        slug,
-        title,
-        price,
-        imageUrl: imageUrl || null,
-      },
-      quantity
-    );
+    setIsBuying(true);
+    // Persist to cart (localStorage + memory store) WITHOUT opening the drawer,
+    // otherwise the drawer/backdrop overlays the checkout page after navigation.
+    addItem(buildPayload(), quantity, { openDrawer: false });
+    closeCart();
 
     // Direct routing to checkout stage
     router.push("/checkout");
@@ -93,7 +132,7 @@ export default function ProductActions({
             <button
               type="button"
               onClick={decrement}
-              disabled={quantity <= 1}
+              disabled={quantity <= MIN_ITEM_QUANTITY}
               aria-label="Decrease quantity"
               className="w-8 h-8 rounded-full flex items-center justify-center text-[#1A1108] hover:bg-[#F5F0E6] disabled:opacity-35 disabled:hover:bg-transparent transition-colors cursor-pointer"
             >
@@ -108,7 +147,7 @@ export default function ProductActions({
             <button
               type="button"
               onClick={increment}
-              disabled={quantity >= 10}
+              disabled={quantity >= maxQty}
               aria-label="Increase quantity"
               className="w-8 h-8 rounded-full flex items-center justify-center text-[#1A1108] hover:bg-[#F5F0E6] disabled:opacity-35 disabled:hover:bg-transparent transition-colors cursor-pointer"
             >
@@ -150,10 +189,12 @@ export default function ProductActions({
         <button
           type="button"
           onClick={handleBuyNow}
-          className="w-full py-3.5 px-6 rounded-full bg-[#F47514] hover:bg-[#DF5E03] active:bg-[#B44100] text-black font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg hover:shadow-orange-500/25 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer group"
+          disabled={isBuying}
+          aria-busy={isBuying}
+          className="w-full py-3.5 px-6 rounded-full bg-[#F47514] hover:bg-[#DF5E03] active:bg-[#B44100] text-black font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg hover:shadow-orange-500/25 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer group disabled:opacity-70 disabled:cursor-wait"
         >
           <Zap className="w-4 h-4 group-hover:scale-110 transition-transform" />
-          <span>Buy Now</span>
+          <span>{isBuying ? "Redirecting…" : "Buy Now"}</span>
         </button>
       </div>
     </div>

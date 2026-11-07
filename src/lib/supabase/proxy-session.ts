@@ -1,23 +1,21 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { readSupabasePublicConfig } from '@/lib/env/public'
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   })
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseKey =
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+  const config = readSupabasePublicConfig()
 
   // If Supabase environment variables are missing (e.g. during minimal build or initial setup),
   // allow the request to proceed without interruption.
-  if (!supabaseUrl || !supabaseKey) {
+  if (!config) {
     return supabaseResponse
   }
 
-  const supabase = createServerClient(supabaseUrl, supabaseKey, {
+  const supabase = createServerClient(config.url, config.anonKey, {
     cookies: {
       getAll() {
         return request.cookies.getAll()
@@ -35,7 +33,7 @@ export async function updateSession(request: NextRequest) {
   })
 
   // IMPORTANT: Calling getUser() refreshes the auth token via cookies if expired.
-  // Never remove getUser() or getClaims() when using @supabase/ssr in middleware.
+  // Never remove getUser() or getClaims() when using @supabase/ssr in the proxy.
   const {
     data: { user },
   } = await supabase.auth.getUser()

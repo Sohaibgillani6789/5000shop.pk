@@ -20,11 +20,36 @@ import { createOrder, type CreateOrderError } from '@/lib/orders/create-order'
 
 export async function POST(request: NextRequest) {
   try {
-    // ── Parse request body ─────────────────────────────────
+    // ── 1. Content-Type Check ──────────────────────────────
+    const contentType = request.headers.get('content-type') || ''
+    if (!contentType.includes('application/json')) {
+      return NextResponse.json(
+        { error: 'Unsupported Media Type. Content-Type must be application/json.' },
+        { status: 415 }
+      )
+    }
+
+    // ── 2. Payload Size Limit Check (Max 16 KB) ─────────────
+    const contentLength = request.headers.get('content-length')
+    if (contentLength && parseInt(contentLength, 10) > 16 * 1024) {
+      return NextResponse.json(
+        { error: 'Payload Too Large. Maximum allowed size is 16 KB.' },
+        { status: 413 }
+      )
+    }
+
+    // ── 3. Parse request body ──────────────────────────────
+    const rawText = await request.text()
+    if (Buffer.byteLength(rawText, 'utf8') > 16 * 1024) {
+      return NextResponse.json(
+        { error: 'Payload Too Large. Maximum allowed size is 16 KB.' },
+        { status: 413 }
+      )
+    }
 
     let body: unknown
     try {
-      body = await request.json()
+      body = JSON.parse(rawText)
     } catch {
       return NextResponse.json(
         { error: 'Invalid JSON in request body.' },
@@ -32,8 +57,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ── Validate checkout data ─────────────────────────────
-
+    // ── 4. Validate checkout data ──────────────────────────
     const validation = validateCheckout(body)
 
     if (!validation.success) {
@@ -42,7 +66,7 @@ export async function POST(request: NextRequest) {
           error: 'Validation failed. Please check your information.',
           details: validation.errors,
         },
-        { status: 400 }
+        { status: 422 }
       )
     }
 
@@ -70,7 +94,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Unexpected server error
-    console.error('[5000shop] Unexpected order error:', error)
+    console.error('[5000shop] Unexpected order error:', {
+      name: error instanceof Error ? error.name : 'UnknownError',
+      message: error instanceof Error ? error.message : String(error),
+    })
     return NextResponse.json(
       { error: 'An unexpected error occurred. Please try again.' },
       { status: 500 }

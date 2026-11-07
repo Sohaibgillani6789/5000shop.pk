@@ -94,9 +94,13 @@ export const checkoutSchema = z.object({
 
   email: z
     .string()
-    .trim()
-    .transform((val) => (val === '' ? null : val))
-    .pipe(z.string().email('Please enter a valid email address').nullable()),
+    .transform((val) => val.trim())
+    .nullish()
+    .refine(
+      (val) => !val || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
+      { message: 'Please enter a valid email address' }
+    )
+    .transform((val) => (val ? val : null)),
 
   province: z.enum(PAKISTAN_PROVINCES, {
     message: 'Please select a valid province',
@@ -151,7 +155,19 @@ export const checkoutSchema = z.object({
 
   items: z
     .array(checkoutItemSchema)
-    .min(1, 'At least one item is required'),
+    .min(1, 'At least one item is required')
+    .max(20, 'Maximum 20 distinct items per order')
+    .refine(
+      (items) => {
+        const seen = new Set<string>()
+        for (const item of items) {
+          if (seen.has(item.productId)) return false
+          seen.add(item.productId)
+        }
+        return true
+      },
+      { message: 'Duplicate items detected in checkout payload' }
+    ),
 })
 
 export type CheckoutInput = z.input<typeof checkoutSchema>

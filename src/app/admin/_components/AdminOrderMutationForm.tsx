@@ -48,6 +48,20 @@ export default function AdminOrderMutationForm({
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+
+    // Explicit confirmation guard for destructive status transitions
+    if (
+      (orderStatus === 'cancelled' || orderStatus === 'returned') &&
+      orderStatus !== currentOrderStatus
+    ) {
+      const confirmed = window.confirm(
+        `Are you sure you want to mark this order as ${orderStatus.toUpperCase()}? This transition is destructive.`
+      )
+      if (!confirmed) {
+        return
+      }
+    }
+
     setSaveState('saving')
     setErrorMessage(null)
 

@@ -13,6 +13,11 @@ export interface CartItemType {
   quantity: number; // Integer between 1 and 10
 }
 
+export interface AddItemOptions {
+  /** Open the cart drawer after adding (default: true). Set false for Buy Now flows. */
+  openDrawer?: boolean;
+}
+
 export interface CartContextValue {
   items: CartItemType[];
   isHydrated: boolean;
@@ -21,7 +26,11 @@ export interface CartContextValue {
   subtotal: number;
   openCart: () => void;
   closeCart: () => void;
-  addItem: (item: Omit<CartItemType, 'quantity'>, quantity?: number) => void;
+  addItem: (
+    item: Omit<CartItemType, 'quantity'>,
+    quantity?: number,
+    options?: AddItemOptions
+  ) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;

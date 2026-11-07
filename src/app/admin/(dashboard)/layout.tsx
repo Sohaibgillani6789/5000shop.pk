@@ -14,6 +14,7 @@
 import React from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { isAdminEmail } from '@/lib/env/server'
 import AdminShell from '@/app/admin/_components/AdminShell'
 import type { Metadata } from 'next'
 
@@ -42,13 +43,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   // ── Step 2: Authorization check (ADMIN_EMAILS allowlist) ──
-  const rawAdminEmails = process.env.ADMIN_EMAILS ?? ''
-  const allowlist = rawAdminEmails
-    .split(',')
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean)
-
-  if (!allowlist.includes(user.email.toLowerCase())) {
+  if (!isAdminEmail(user.email)) {
     // Sign out the unauthorized user and redirect to login
     await supabase.auth.signOut()
     redirect('/admin/login?error=unauthorized')

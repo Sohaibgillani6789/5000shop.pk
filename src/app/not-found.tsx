@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Sparkles, Home, HelpCircle } from 'lucide-react'
+import { getWhatsAppNumber, getWhatsAppLink } from '@/lib/env/public'
 
 export default function NotFound() {
   const categories = [
@@ -84,12 +85,12 @@ export default function NotFound() {
           <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
           <span>Need help with an order? Contact WhatsApp dispatch at</span>
           <a
-            href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923000000000'}`}
+            href={getWhatsAppLink('Assalam-o-Alaikum! I need help finding a product or order on 5 Hazaar Tak.')}
             target="_blank"
             rel="noopener noreferrer"
             className="text-amber-400 hover:text-white font-mono font-bold underline"
           >
-            +{process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923000000000'}
+            +{getWhatsAppNumber()}
           </a>
         </p>
       </footer>

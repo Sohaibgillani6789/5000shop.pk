@@ -178,7 +178,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           MAIN PRODUCT DETAIL STAGE (WARM CREAM PALETTE)
           ═══════════════════════════════════════════════════════════════ */}
       <main
-        className="py-10 sm:py-16 overflow-hidden"
+        className="relative z-10 py-10 sm:py-16 overflow-hidden"
         style={{
           background: "linear-gradient(180deg, #FFFFFF 0%, #FAF8F5 100%)",
           color: "#1A1108",
