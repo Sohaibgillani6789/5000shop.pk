@@ -579,11 +579,11 @@ export default function CategoryShowcase() {
                         cursor: "default",
                         position: "relative",
                         overflow: "hidden",
+                        /* Brown-card background + (optional) backdrop blur live in the
+                           .trust-pill-brown CSS class so they can be tiered per device. */
                         background: isReturns
                           ? "linear-gradient(135deg, rgba(244, 117, 20, 0.94) 0%, rgba(223, 94, 3, 0.92) 50%, rgba(245, 158, 11, 0.94) 100%)"
-                          : "linear-gradient(135deg, rgba(32, 18, 10, 0.45) 0%, rgba(20, 11, 6, 0.38) 50%, rgba(12, 7, 4, 0.48) 100%)",
-                        backdropFilter: isReturns ? "none" : "blur(4px)",
-                        WebkitBackdropFilter: isReturns ? "none" : "blur(4px)",
+                          : undefined,
                         border: isReturns
                           ? "1px solid rgba(255, 235, 215, 0.6)"
                           : "1px solid rgba(255, 215, 175, 0.28)",
@@ -908,6 +908,48 @@ export default function CategoryShowcase() {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
           gap: 1.25rem;
+        }
+
+        /* ── Brown glass trust cards: tiered "frosted" rendering ──
+           Default (mobile / touch / low-end): NO backdrop-filter. backdrop-filter
+           forces a per-frame offscreen read-back + Gaussian pass of everything
+           underneath (incl. the mix-blend-mode bg art) for each of the 3 cards,
+           which is what janks low-end GPUs while scrolling. A 4px blur over the
+           soft cream/painted background is visually ~identical to a marginally
+           denser tint, so we fake it with +0.05 alpha — zero GPU cost, the
+           gradient is rasterised once and cached with the layer. */
+        .trust-pill-brown {
+          background: linear-gradient(
+            135deg,
+            rgba(32, 18, 10, 0.5) 0%,
+            rgba(20, 11, 6, 0.43) 50%,
+            rgba(12, 7, 4, 0.53) 100%
+          );
+          contain: layout paint;
+        }
+
+        /* Capable devices only (large screen + fine pointer + no reduced-
+           transparency/motion preference): restore the real frosted glass. */
+        @media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+          @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+            .trust-pill-brown {
+              background: linear-gradient(
+                135deg,
+                rgba(32, 18, 10, 0.45) 0%,
+                rgba(20, 11, 6, 0.38) 50%,
+                rgba(12, 7, 4, 0.48) 100%
+              );
+              -webkit-backdrop-filter: blur(4px);
+              backdrop-filter: blur(4px);
+            }
+          }
+        }
+
+        @media (prefers-reduced-transparency: reduce) {
+          .trust-pill-brown {
+            -webkit-backdrop-filter: none !important;
+            backdrop-filter: none !important;
+          }
         }
 
         /* Mobile trust cards ordering: 7-Day Returns in 2nd position */
