@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { ArrowRight, Truck, ShieldCheck, Star } from "lucide-react";
@@ -79,19 +80,35 @@ const FLOATING_PRODUCTS = [
 /* ── Trust pillar data ─────────────────────────────────────── */
 const TRUST_PILLARS = [
   {
+    id: "dispatch",
     icon: <Truck size={18} strokeWidth={2.2} />,
     title: "NATIONWIDE DISPATCH",
     subtitle: "All Over Pakistan",
   },
   {
+    id: "cod",
     icon: <ShieldCheck size={18} strokeWidth={2.2} />,
     title: "CASH ON DELIVERY",
     subtitle: "Pay at Doorstep",
   },
   {
+    id: "ceiling",
     icon: <Star size={18} strokeWidth={2.2} />,
     title: "PRICE CEILING",
-    subtitle: "Strictly Under ₨5,000",
+    subtitle: (
+      <>
+        Strictly Under{" "}
+        <span
+          style={{
+            color: "#FF6B00",
+            fontWeight: 800,
+            textShadow: "0 0 10px rgba(255, 107, 0, 0.7), 0 0 18px rgba(244, 117, 20, 0.4)",
+          }}
+        >
+          ₨5,000
+        </span>
+      </>
+    ),
   },
 ];
 
@@ -107,10 +124,26 @@ const TRUST_PILLARS = [
    ═══════════════════════════════════════════════════════════════ */
 export default function Hero() {
   const shouldReduceMotion = useReducedMotion();
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        el.setAttribute("data-in-view", entry.isIntersecting ? "true" : "false");
+      },
+      { threshold: 0 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   return (
     <section
       id="home"
+      ref={sectionRef}
+      data-in-view="true"
       className="hero-root-section"
       style={{
         position: "relative",
@@ -148,25 +181,19 @@ export default function Hero() {
           }}
         />
 
-        {/* ── Warm ambient orb — right side ────────────────── */}
-        <motion.div
-          animate={shouldReduceMotion ? {} : {
-            scale: [1, 1.08, 0.95, 1],
-            opacity: [0.25, 0.4, 0.3, 0.25],
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        {/* ── Warm ambient orb — right side (pure soft radial-gradient, zero blur filter / JS loop) ── */}
+        <div
           aria-hidden="true"
           style={{
             position: "absolute",
-            top: "10%",
-            right: "10%",
-            width: "500px",
-            height: "500px",
+            top: "5%",
+            right: "5%",
+            width: "640px",
+            height: "640px",
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(217,119,6,0.22) 0%, transparent 70%)",
-            filter: "blur(80px)",
+            background:
+              "radial-gradient(circle, rgba(217,119,6,0.16) 0%, rgba(217,119,6,0.06) 40%, transparent 70%)",
             pointerEvents: "none",
-            willChange: "transform, opacity",
           }}
         />
 
@@ -322,57 +349,66 @@ export default function Hero() {
                 width: "100%",
               }}
             >
-              {TRUST_PILLARS.map((pill, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 1.25 + i * 0.12 }}
-                  className="hero-trust-badge"
-                >
-                  {/* Icon circle */}
-                  <div
-                    style={{
-                      width: "32px",
-                      height: "32px",
-                      borderRadius: "50%",
-                      background: "linear-gradient(135deg, rgba(217,119,6,0.20) 0%, rgba(217,119,6,0.08) 100%)",
-                      border: "1px solid rgba(217,119,6,0.25)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "#F59E0B",
-                      flexShrink: 0,
-                    }}
+              {TRUST_PILLARS.map((pill, i) => {
+                const isCeiling = pill.id === "ceiling";
+
+                return (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 1.25 + i * 0.12 }}
+                    className="hero-trust-badge"
                   >
-                    {pill.icon}
-                  </div>
-                  <div>
+                    {/* Icon circle */}
                     <div
                       style={{
-                        fontSize: "clamp(0.5625rem, 0.85vw, 0.75rem)",
-                        fontWeight: 800,
-                        color: "rgba(255,255,255,0.85)",
-                        letterSpacing: "0.06em",
-                        fontFamily: "var(--font-outfit), sans-serif",
-                        textTransform: "uppercase",
+                        width: "32px",
+                        height: "32px",
+                        borderRadius: "50%",
+                        background: isCeiling
+                          ? "linear-gradient(135deg, rgba(255,107,0,0.3) 0%, rgba(217,119,6,0.15) 100%)"
+                          : "linear-gradient(135deg, rgba(217,119,6,0.20) 0%, rgba(217,119,6,0.08) 100%)",
+                        border: "1px solid rgba(217,119,6,0.25)",
+                        boxShadow: isCeiling
+                          ? "0 0 16px rgba(255,107,0,0.65), 0 0 6px rgba(244,117,20,0.4), inset 0 0 8px rgba(255,140,0,0.35)"
+                          : "none",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: isCeiling ? "#FF8C00" : "#F59E0B",
+                        flexShrink: 0,
                       }}
                     >
-                      {pill.title}
+                      {pill.icon}
                     </div>
-                    <div
-                      style={{
-                        fontSize: "clamp(0.5rem, 0.75vw, 0.6875rem)",
-                        color: "rgba(255,255,255,0.4)",
-                        fontFamily: "var(--font-outfit), sans-serif",
-                        marginTop: "0.0625rem",
-                      }}
-                    >
-                      {pill.subtitle}
+                    <div>
+                      <div
+                        style={{
+                          fontSize: "clamp(0.5625rem, 0.85vw, 0.75rem)",
+                          fontWeight: 800,
+                          color: "rgba(255,255,255,0.85)",
+                          letterSpacing: "0.06em",
+                          fontFamily: "var(--font-outfit), sans-serif",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {pill.title}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "clamp(0.5rem, 0.75vw, 0.6875rem)",
+                          color: "rgba(255,255,255,0.4)",
+                          fontFamily: "var(--font-outfit), sans-serif",
+                          marginTop: "0.0625rem",
+                        }}
+                      >
+                        {pill.subtitle}
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </motion.div>
           </div>
 
@@ -389,19 +425,20 @@ export default function Hero() {
               justifyContent: "center",
             }}
           >
-            {/* Amber glow behind logo */}
+            {/* Amber glow behind logo (pure soft radial-gradient + compositor opacity/scale animation) */}
             <div
               aria-hidden="true"
+              className="hero-logo-glow-orb"
               style={{
                 position: "absolute",
                 top: "50%",
                 left: "50%",
                 transform: "translate(-50%, -50%)",
-                width: "clamp(220px, 60vw, 880px)",
-                height: "clamp(220px, 60vw, 880px)",
+                width: "clamp(240px, 64vw, 920px)",
+                height: "clamp(240px, 64vw, 920px)",
                 borderRadius: "50%",
-                background: "radial-gradient(circle, rgba(244,117,20,0.32) 0%, rgba(180,83,9,0.12) 40%, transparent 70%)",
-                filter: "blur(40px)",
+                background:
+                  "radial-gradient(circle, rgba(244,117,20,0.34) 0%, rgba(217,119,6,0.18) 32%, rgba(180,83,9,0.06) 55%, transparent 72%)",
                 animation: shouldReduceMotion ? "none" : "hero-logo-glow 4s ease-in-out infinite",
                 pointerEvents: "none",
               }}
@@ -409,6 +446,7 @@ export default function Hero() {
 
             {/* Brand Logo — BIG and centered */}
             <div
+              className="hero-logo-container"
               style={{
                 position: "relative",
                 zIndex: 2,
@@ -467,6 +505,12 @@ export default function Hero() {
           overflow: hidden;
         }
 
+        /* Pause continuous hero animations when scrolled out of viewport */
+        .hero-root-section[data-in-view="false"] .hero-product-float,
+        .hero-root-section[data-in-view="false"] .hero-logo-glow-orb {
+          animation-play-state: paused !important;
+        }
+
         /* ── Trust badge base (desktop: row, mobile overridden to column) ── */
         .hero-trust-badge {
           display: flex;
@@ -500,10 +544,10 @@ export default function Hero() {
             width: 100% !important;
           }
 
-          /* Headline: Covers full viewport width, left-aligned, high impact */
+          /* Headline: Covers full viewport width, centered on mobile, high impact */
           .hero-left-col h1 {
             order: 1 !important;
-            text-align: left !important;
+            text-align: center !important;
             font-size: clamp(2.4rem, 11vw, 3.8rem) !important;
             line-height: 0.95 !important;
             letter-spacing: -0.03em !important;
@@ -511,7 +555,7 @@ export default function Hero() {
           }
 
           .hero-left-col h1 span {
-            text-align: left !important;
+            text-align: center !important;
           }
 
           /* Tagline: Below headline, left-aligned, full width */
@@ -587,9 +631,14 @@ export default function Hero() {
           /* Right column (Logo) appears on TOP on mobile */
           .hero-right-col {
             order: -1 !important;
-            width: clamp(190px, 58vw, 300px) !important;
-            height: clamp(190px, 58vw, 300px) !important;
+            width: clamp(235px, 72vw, 375px) !important;
+            height: clamp(235px, 72vw, 375px) !important;
             margin: 0 auto 1.25rem !important;
+          }
+
+          .hero-logo-container {
+            width: 100% !important;
+            height: 100% !important;
           }
         }
 

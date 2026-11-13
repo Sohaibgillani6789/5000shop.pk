@@ -2,7 +2,6 @@
 
 import { useCallback } from "react";
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -49,8 +48,6 @@ interface FeaturedProductsSectionProps {
 
 // ─── Main section ─────────────────────────────────────────────────────────────
 export default function FeaturedProductsSection({ products }: FeaturedProductsSectionProps) {
-  const shouldReduceMotion = useReducedMotion();
-
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
     loop: true,
@@ -112,35 +109,25 @@ export default function FeaturedProductsSection({ products }: FeaturedProductsSe
         }}
       >
         {/* ── fa.png — Centered 3D Emblem without any black effect ── */}
-        <motion.div
-          initial={shouldReduceMotion ? {} : { opacity: 0, scale: 0.95, y: 10 }}
-          whileInView={{ opacity: 1, scale: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        <div
           style={{
             position: "relative",
             width: "clamp(240px, 34vw, 440px)",
             aspectRatio: "2207 / 892",
             margin: "0 auto 0.4rem",
-            filter: "drop-shadow(0 12px 24px rgba(180, 140, 60, 0.15))",
           }}
         >
           <Image
             src="/images/fa.png"
             alt="Featured Products Collection"
             fill
-            priority
             sizes="(max-width: 768px) 280px, 440px"
             style={{ objectFit: "contain" }}
           />
-        </motion.div>
+        </div>
 
         {/* Centered Descriptive Tagline */}
-        <motion.p
-          initial={shouldReduceMotion ? {} : { opacity: 0, y: 8 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.55, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+        <p
           style={{
             fontSize: "clamp(0.85rem, 1.1vw, 1rem)",
             color: "#736453",
@@ -151,7 +138,7 @@ export default function FeaturedProductsSection({ products }: FeaturedProductsSe
           }}
         >
           Handpicked masterworks blending artisan quality with accessible luxury.
-        </motion.p>
+        </p>
       </div>
 
       {/* ── Carousel Sub-Bar: Drag Hint & Navigation Controls (Full Width) ── */}

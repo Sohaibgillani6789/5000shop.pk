@@ -238,10 +238,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  /* Subtle noise grain texture overlay for premium feel */
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-  background-size: 256px 256px;
-  background-repeat: repeat;
 }
 
 *, *::before, *::after {
@@ -798,16 +794,18 @@ body::-webkit-scrollbar {
   }
 }
 
-/* Logo glow pulse */
+/* Logo glow pulse (compositor-only transform + opacity, zero paint cost) */
 @keyframes hero-logo-glow {
 
   0%,
   100% {
-    box-shadow: 0 0 60px rgba(217, 119, 6, 0.3), 0 0 120px rgba(217, 119, 6, 0.15);
+    opacity: 0.75;
+    transform: translate(-50%, -50%) scale(1);
   }
 
   50% {
-    box-shadow: 0 0 80px rgba(217, 119, 6, 0.5), 0 0 160px rgba(217, 119, 6, 0.25);
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.06);
   }
 }
 

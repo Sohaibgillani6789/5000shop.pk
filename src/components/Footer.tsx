@@ -6,13 +6,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, useScroll, useTransform } from "framer-motion";
 import {
-  ArrowUp,
   ArrowUpRight,
   Check,
   Copy,
   Sparkles,
 } from "lucide-react";
-import { AnchorLink } from "@/components/SmoothScroll";
 
 // Pakistani Cities for Marquee Ticker
 const PAKISTAN_CITIES = [
@@ -73,31 +71,24 @@ function FooterBackdropContent({
         }}
       />
 
-      {/* Top Spotlight Glow */}
+      {/* Top Spotlight Glow (pure soft radial-gradient, zero GPU blur filter) */}
       <div
         aria-hidden="true"
         style={{
           position: "absolute",
-          top: "-20%",
+          top: "-25%",
           left: "50%",
           transform: "translateX(-50%)",
-          width: "600px",
-          height: "350px",
+          width: "720px",
+          height: "440px",
           background:
-            "radial-gradient(circle, rgba(255, 235, 200, 0.35) 0%, rgba(255, 170, 80, 0.15) 45%, transparent 70%)",
-          filter: "blur(60px)",
+            "radial-gradient(circle, rgba(255, 235, 200, 0.28) 0%, rgba(255, 170, 80, 0.12) 40%, transparent 70%)",
           zIndex: 1,
           pointerEvents: "none",
         }}
       />
 
-      {/* Top Tagline Badge */}
-      <div className="relative z-10 flex justify-center px-2">
-        <div className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1 rounded-full bg-[#200E02]/70 border border-[rgba(255,220,180,0.3)] text-[10px] sm:text-[11px] font-semibold text-[#FFF5EB] tracking-wider uppercase backdrop-blur-md font-['Outfit',var(--font-outfit),sans-serif] shadow-lg text-center">
-          <Sparkles className="w-3 h-3 text-amber-300 shrink-0" />
-          <span>Pakistan&apos;s Smartest Marketplace</span>
-        </div>
-      </div>
+
 
       {/* Central 3D "5000 RS SHOP" Centerpiece */}
       <div
@@ -105,7 +96,7 @@ function FooterBackdropContent({
           isHeroPadded ? "pt-36 sm:pt-4 pb-4" : "py-6 sm:py-4"
         }`}
       >
-        {/* Ambient Backlight for 5000 RS Logo */}
+        {/* Ambient Backlight for 5000 RS Logo (pure soft radial-gradient, zero GPU blur filter) */}
         <div
           aria-hidden="true"
           style={{
@@ -113,11 +104,10 @@ function FooterBackdropContent({
             top: "55%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: "min(500px, 85vw)",
-            height: "200px",
+            width: "min(580px, 92vw)",
+            height: "260px",
             background:
-              "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(255, 215, 140, 0.38) 0%, rgba(244, 117, 20, 0.16) 55%, transparent 80%)",
-            filter: "blur(38px)",
+              "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(255, 215, 140, 0.32) 0%, rgba(244, 117, 20, 0.14) 50%, transparent 78%)",
             zIndex: 0,
             pointerEvents: "none",
           }}
@@ -139,33 +129,23 @@ function FooterBackdropContent({
         </div>
       </div>
 
-      {/* Footer Bottom Bar with Policy Links & Sleek Back to Top */}
-      <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 pt-2.5 border-t border-[rgba(255,220,180,0.25)] font-['Outfit',var(--font-outfit),sans-serif]">
-        <div className="flex items-center gap-3 sm:gap-6 flex-wrap">
-          <span className="text-xs font-semibold text-[#FFF5EB]/90 tracking-wider uppercase">
-            5 HAZAAR TAK
-          </span>
+      {/* Footer Bottom Bar with Policy Links */}
+      <div className="relative z-10 flex items-center justify-center pt-3 font-['Outfit',var(--font-outfit),sans-serif] w-full">
+        <div className="flex items-center justify-center gap-3 sm:gap-6 flex-wrap text-center w-full max-w-md mx-auto px-2">
           <Link
             href="/shipping-policy"
-            className="text-xs font-medium text-[#FFF5EB]/75 hover:text-white uppercase tracking-wider transition-colors"
+            className="text-[11px] sm:text-xs font-medium text-[#FFF5EB]/85 hover:text-white uppercase tracking-wider transition-colors py-1 px-1.5"
           >
             Shipping &amp; COD Policy
           </Link>
+          <span className="text-[#FFF5EB]/30 text-xs hidden sm:inline" aria-hidden="true">•</span>
           <Link
             href="/return-policy"
-            className="text-xs font-medium text-[#FFF5EB]/75 hover:text-white uppercase tracking-wider transition-colors"
+            className="text-[11px] sm:text-xs font-medium text-[#FFF5EB]/85 hover:text-white uppercase tracking-wider transition-colors py-1 px-1.5"
           >
             Return Policy
           </Link>
         </div>
-
-        <AnchorLink
-          href="#home"
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#200E02]/80 hover:bg-[#200E02] border border-[rgba(255,220,180,0.4)] text-[#FFF5EB] hover:text-white text-xs font-bold uppercase tracking-wider transition-all group shadow-md"
-        >
-          <span>Back to Top</span>
-          <ArrowUp className="w-3.5 h-3.5 group-hover:-translate-y-0.5 transition-transform text-amber-300 group-hover:text-white" />
-        </AnchorLink>
       </div>
     </>
   );
@@ -221,10 +201,11 @@ function HomepageFooter() {
           opacity: fixedOpacity,
           pointerEvents: fixedPointerEvents,
           visibility: fixedVisibility,
+          willChange: "opacity",
         }}
         className="fixed bottom-0 left-0 w-full h-[85dvh] min-h-[660px] sm:h-[52vh] sm:min-h-[420px] z-0 flex flex-col justify-between px-4 sm:px-8 py-4 sm:py-6 overflow-hidden select-none shadow-[inset_0_30px_60px_rgba(0,0,0,0.4)]"
       >
-        <FooterBackdropContent isHeroPadded={true} isPriority={true} />
+        <FooterBackdropContent isHeroPadded={true} isPriority={false} />
       </motion.div>
 
       {/* ═══════════════════════════════════════════════════════════════
@@ -254,7 +235,7 @@ function HomepageFooter() {
                 key={idx}
                 className="flex items-center gap-2.5 mx-4 text-xs font-semibold text-[#FFF1E0] tracking-wider uppercase font-['Outfit',var(--font-outfit),sans-serif]"
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.6)]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-white" />
                 <span>{city}</span>
               </div>
             ))}
@@ -310,10 +291,10 @@ function HomepageFooter() {
                 position: "absolute",
                 top: "-15%",
                 right: "-10%",
-                width: "220px",
-                height: "220px",
-                background: "radial-gradient(circle, rgba(244,117,20,0.12) 0%, transparent 70%)",
-                filter: "blur(36px)",
+                width: "260px",
+                height: "260px",
+                background:
+                  "radial-gradient(circle, rgba(244,117,20,0.12) 0%, rgba(244,117,20,0.04) 45%, transparent 72%)",
                 pointerEvents: "none",
               }}
             />

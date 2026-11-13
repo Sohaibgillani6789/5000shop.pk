@@ -138,3 +138,73 @@ npm start
 2. **Server-Side Pricing Authority**: Never trust client-submitted prices, discounts, or delivery fees. All order subtotals and stock levels are verified server-side.
 3. **Atomic Order Placement**: Multi-table insertions (`orders` and `order_items`) execute exclusively through atomic PostgreSQL RPC functions to prevent orphaned records.
 4. **Non-Blocking Middleware**: Public shopping routes (`/`, `/category/*`, `/product/*`, `/cart`, `/checkout`, `/order-confirmation/*`) are guaranteed to never be blocked by authentication redirects.
+
+---
+
+## 7. Vercel Deployment & Mobile Testing
+
+### 7.1 Prerequisites & Required Accounts
+- **Node.js**: v20 LTS or newer
+- **Package Manager**: `npm` (detected via `package-lock.json`)
+- **Accounts**:
+  - [Vercel](https://vercel.com) account (`sohaibs-projects-71ecb046/hazaartak`)
+  - [Supabase](https://supabase.com) project with schema & `create_cod_order` RPC applied (`supabase/COMPLETE_STAGING_MIGRATION_BUNDLE.sql`)
+
+### 7.2 Required Environment Variable Names (No Values)
+Configure the following variables in Vercel (`Settings → Environment Variables`) across **Production**, **Preview**, and **Development** (or via `npx vercel env add <NAME>`):
+
+| Variable Name | Scope | Description |
+| :--- | :--- | :--- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Public (Client & Server) | Supabase project HTTPS endpoint |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` *(or `NEXT_PUBLIC_SUPABASE_ANON_KEY`)* | Public (Client & Server) | Supabase public client key (enforced by Row-Level Security) |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Server-Only Secret** | Supabase service-role key for `/api/orders` and `/admin` (`import 'server-only'`) |
+| `ADMIN_EMAILS` | **Server-Only Secret** | Comma-separated allowlist of authorized admin emails for `/admin` |
+| `NEXT_PUBLIC_SITE_URL` *(Optional)* | Public (Client & Server) | Canonical origin URL (defaults to `https://5000shop.pk` in production) |
+| `NEXT_PUBLIC_WHATSAPP_NUMBER` *(Optional)* | Public (Client & Server) | International WhatsApp number without `+` (defaults to `923000000000`) |
+
+### 7.3 Pre-Deployment Local Quality Gate
+Always run the local baseline checks before deploying:
+```bash
+npm run lint
+npx tsc --noEmit
+npm test
+npm run build
+node scripts/check-bundle-secrets.mjs
+```
+
+### 7.4 Creating a Preview Deployment
+ Vercel natively detects Next.js (`next build`), so no custom `vercel.json` is needed:
+```bash
+# Link repository (first time only)
+npx vercel link
+
+# Create a Preview deployment
+npx vercel deploy
+```
+> **Note on Preview URLs & Incognito Mobile Testing**: By default, Vercel enables **Vercel Authentication (Deployment Protection)** on branch/preview URLs (`https://hazaartak-<hash>-sohaibs-projects-71ecb046.vercel.app`). To open a Preview URL in an unauthenticated mobile incognito tab without promoting to production, either disable *Vercel Authentication* under **Project Settings → Deployment Protection** in the Vercel Dashboard, or test via the public production alias (`https://hazaartak.vercel.app`).
+
+### 7.5 Promoting a Verified Deployment to Production
+```bash
+# Promote an existing verified preview deployment ID/URL to production:
+npx vercel promote <deployment-url-or-id> --yes
+
+# Or build and deploy directly to production:
+npx vercel deploy --prod
+```
+
+### 7.6 Real Mobile Phone Testing Checklist
+Open the deployed URL on a real phone over cellular or Wi-Fi:
+1. Open `https://hazaartak.vercel.app` in a **private/incognito tab**.
+2. Verify the first render is usable with **zero horizontal scrolling**.
+3. Check narrow (`375px` width) and large (`430px` width) phone viewports in both **portrait** and **landscape** orientations.
+4. Tap every primary navigation control (Navbar links, mobile menu drawer, Cart trigger) and category card.
+5. Open a product detail page (`/product/chronograph-obsidian-watch`), tap **Add to Cart**, and verify the slide-over Cart Drawer.
+6. Proceed to `/checkout` and test the **on-screen keyboard** with text/phone inputs and Cash on Delivery placement.
+7. Verify all product images and self-hosted `Inter`/`Outfit` fonts load without `404` errors or layout overflow.
+8. Confirm `/admin` redirects unauthenticated visitors to `/admin/login` without exposing private order data.
+
+### 7.7 Verified Deployment Status
+- **Production / Mobile-Shareable URL**: [https://hazaartak.vercel.app](https://hazaartak.vercel.app)
+- **Preview Deployment URL**: `https://hazaartak-kix6q62ja-sohaibs-projects-71ecb046.vercel.app` *(protected by Vercel Authentication)*
+- **Last Verified**: 2026-11-08
+

@@ -13,13 +13,24 @@ import {
   Tag,
 } from "lucide-react";
 
-import { getProductBySlug, getRelatedProducts } from "@/lib/supabase/products";
+import {
+  getProductBySlug,
+  getRelatedProducts,
+  getAllProductsForSitemap,
+} from "@/lib/supabase/products";
 import ProductActions from "@/components/ProductActions";
 import ProductCard from "@/components/ProductCard";
 import Footer from "@/components/Footer";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
+}
+
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const products = await getAllProductsForSitemap();
+  return products.map((product) => ({ slug: product.slug }));
 }
 
 export async function generateMetadata({
@@ -119,7 +130,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#050708] text-white">
+    <div className="min-h-screen bg-white text-neutral-900 font-['Outfit',var(--font-outfit),sans-serif]">
       {/* Product JSON-LD */}
       <script
         type="application/ld+json"
@@ -129,45 +140,45 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       {/* ═══════════════════════════════════════════════════════════════
           BREADCRUMBS & CONTEXT BAR
           ═══════════════════════════════════════════════════════════════ */}
-      <div className="pt-28 sm:pt-36 pb-6 bg-[#080503] border-b border-[rgba(180,140,60,0.18)]">
+      <div className="pt-28 sm:pt-36 pb-6 bg-white border-b border-neutral-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav
             aria-label="Breadcrumb navigation"
-            className="flex items-center flex-wrap gap-2 text-xs font-semibold uppercase tracking-wider text-neutral-400 font-['Outfit',var(--font-outfit),sans-serif]"
+            className="flex items-center flex-wrap gap-2 text-xs font-semibold uppercase tracking-wider text-neutral-600 font-['Outfit',var(--font-outfit),sans-serif]"
           >
             <Link
               href="/"
-              className="hover:text-[#F47514] transition-colors flex items-center gap-1.5 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#F47514] rounded"
+              className="hover:text-[#F47514] text-neutral-600 transition-colors flex items-center gap-1.5 focus:outline-none focus-visible:ring-1 focus-visible:ring-[#F47514] rounded"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Home</span>
             </Link>
 
-            <ChevronRight className="w-3 h-3 text-neutral-600 shrink-0" />
+            <ChevronRight className="w-3 h-3 text-neutral-400 shrink-0" />
 
             {product.category ? (
               <>
                 <Link
                   href={`/category/${product.category.slug}`}
-                  className="hover:text-[#F47514] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-[#F47514] rounded"
+                  className="hover:text-[#F47514] text-neutral-600 transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-[#F47514] rounded"
                 >
                   {product.category.name}
                 </Link>
-                <ChevronRight className="w-3 h-3 text-neutral-600 shrink-0" />
+                <ChevronRight className="w-3 h-3 text-neutral-400 shrink-0" />
               </>
             ) : (
               <>
                 <Link
                   href="/#categories"
-                  className="hover:text-[#F47514] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-[#F47514] rounded"
+                  className="hover:text-[#F47514] text-neutral-600 transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-[#F47514] rounded"
                 >
                   Categories
                 </Link>
-                <ChevronRight className="w-3 h-3 text-neutral-600 shrink-0" />
+                <ChevronRight className="w-3 h-3 text-neutral-400 shrink-0" />
               </>
             )}
 
-            <span className="text-[#F47514] truncate max-w-[200px] sm:max-w-xs">
+            <span className="text-[#F47514] font-bold truncate max-w-[200px] sm:max-w-xs">
               {product.title}
             </span>
           </nav>

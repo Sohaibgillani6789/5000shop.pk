@@ -15,6 +15,18 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse
   }
 
+  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin')
+  const hasSupabaseCookies = request.cookies
+    .getAll()
+    .some((cookie) => cookie.name.startsWith('sb-'))
+
+  // Fast-path for guest shoppers on public storefront routes:
+  // If the route is not under /admin and no Supabase auth cookie is present,
+  // skip the auth network call so Vercel CDN / ISR can serve and cache at the edge.
+  if (!isAdminRoute && !hasSupabaseCookies) {
+    return supabaseResponse
+  }
+
   const supabase = createServerClient(config.url, config.anonKey, {
     cookies: {
       getAll() {

@@ -7,8 +7,49 @@
  * ──────────────────────────────────────────────────────────────
  */
 
-import { createClient } from './server'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { getSupabasePublicConfig } from '@/lib/env/public'
 import type { Product, ProductWithCategory, Category } from './types'
+
+// ── Vercel CDN & ISR Cache Contract ───────────────────────────
+
+export const CATALOG_REVALIDATE_SECONDS = 3600
+
+export const CACHE_TAGS = {
+  PRODUCTS: 'products',
+  FEATURED_PRODUCTS: 'featured-products',
+  CATEGORIES: 'categories',
+  category: (slug: string) => `category-${slug}`,
+  product: (slug: string) => `product-${slug}`,
+} as const
+
+/**
+ * Stateless public Supabase client for catalog reads.
+ * Does NOT read request cookies (`next/headers`), allowing `/`,
+ * `/category/[slug]`, `/product/[slug]`, and `/sitemap.xml` to be
+ * statically prerendered and served from Vercel's CDN & ISR cache
+ * with granular cache tags for on-demand revalidation.
+ */
+function createPublicCatalogClient(tags: string[]) {
+  const { url, anonKey } = getSupabasePublicConfig()
+  return createSupabaseClient(url, anonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+    global: {
+      fetch: (input, init) =>
+        fetch(input, {
+          ...init,
+          next: {
+            revalidate: CATALOG_REVALIDATE_SECONDS,
+            tags,
+          },
+        }),
+    },
+  })
+}
 
 // ── Explicit column lists (never select("*")) ─────────────────
 
@@ -17,6 +58,30 @@ const PRODUCT_COLUMNS =
 
 const CATEGORY_COLUMNS =
   'id,name,slug,description,image_url,display_order,color,is_active,created_at,updated_at'
+
+// ── Legacy / Staging Image Path Normalization ─────────────────
+// Maps legacy image paths from COMPLETE_STAGING_MIGRATION_BUNDLE.sql
+// to the verified assets present in `public/images/` so Next.js image
+// optimization (`/_next/image`) never returns 404.
+const LEGACY_IMAGE_MAP: Record<string, string> = {
+  '/images/earbuds.jpg': '/images/earbud.jpg',
+  '/images/headphone.jpg': '/images/hero-headphones.png',
+  '/images/fragrance.jpg': '/images/perfume1.jpg',
+  '/images/serum.jpg': '/images/perfume1.jpg',
+  '/images/ceramic-pot.jpg': '/images/pot.jpg',
+  '/images/lamp.jpg': '/images/hero-lamp.png',
+  '/images/tote-bag.jpg': '/images/hero-handbag.png',
+  '/images/sneakers.jpg': '/images/hero-sneakers.png',
+  '/images/accessories.jpg': '/images/hero-watch.png',
+}
+
+function normalizeProduct<T extends Product>(product: T): T {
+  const mappedImage = LEGACY_IMAGE_MAP[product.image_url]
+  if (mappedImage) {
+    return { ...product, image_url: mappedImage }
+  }
+  return product
+}
 
 // ── Canonical Fallback Categories ─────────────────────────────
 
@@ -303,7 +368,10 @@ export const FALLBACK_PRODUCTS: ProductWithCategory[] = [
  */
 export async function getFeaturedProducts(): Promise<Product[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createPublicCatalogClient([
+      CACHE_TAGS.PRODUCTS,
+      CACHE_TAGS.FEATURED_PRODUCTS,
+    ])
     const { data, error } = await supabase
       .from('products')
       .select(PRODUCT_COLUMNS)
@@ -316,7 +384,7 @@ export async function getFeaturedProducts(): Promise<Product[]> {
     }
 
     if (data && data.length > 0) {
-      return data as unknown as Product[]
+      return (data as unknown as Product[]).map(normalizeProduct)
     }
   } catch (err) {
     console.warn('[getFeaturedProducts] Falling back to example products:', err)
@@ -337,7 +405,11 @@ export async function getProductsByCategory(
   categorySlug: string,
 ): Promise<ProductWithCategory[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createPublicCatalogClient([
+      CACHE_TAGS.CATEGORIES,
+      CACHE_TAGS.PRODUCTS,
+      CACHE_TAGS.category(categorySlug),
+    ])
 
     const { data: catData, error: catError } = await supabase
       .from('categories')
@@ -362,7 +434,7 @@ export async function getProductsByCategory(
 
       if (data && data.length > 0) {
         return (data as unknown as Product[]).map((product) => ({
-          ...product,
+          ...normalizeProduct(product),
           category,
         }))
       }
@@ -385,7 +457,7 @@ export async function getProductsByCategory(
  */
 export async function getCategories(): Promise<Category[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createPublicCatalogClient([CACHE_TAGS.CATEGORIES])
     const { data } = await supabase
       .from('categories')
       .select(CATEGORY_COLUMNS)
@@ -410,7 +482,10 @@ export async function getCategories(): Promise<Category[]> {
  */
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
   try {
-    const supabase = await createClient()
+    const supabase = createPublicCatalogClient([
+      CACHE_TAGS.CATEGORIES,
+      CACHE_TAGS.category(slug),
+    ])
     const { data } = await supabase
       .from('categories')
       .select(CATEGORY_COLUMNS)
@@ -438,7 +513,11 @@ export async function getProductBySlug(
   slug: string,
 ): Promise<ProductWithCategory | null> {
   try {
-    const supabase = await createClient()
+    const supabase = createPublicCatalogClient([
+      CACHE_TAGS.PRODUCTS,
+      CACHE_TAGS.CATEGORIES,
+      CACHE_TAGS.product(slug),
+    ])
     const { data } = await supabase
       .from('products')
       .select(PRODUCT_COLUMNS)
@@ -465,7 +544,7 @@ export async function getProductBySlug(
       }
 
       return {
-        ...product,
+        ...normalizeProduct(product),
         category,
       }
     }
@@ -486,7 +565,7 @@ export async function getProductBySlug(
  */
 export async function getCategorySlugs(): Promise<string[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createPublicCatalogClient([CACHE_TAGS.CATEGORIES])
     const { data } = await supabase
       .from('categories')
       .select('slug')
@@ -515,7 +594,7 @@ export async function getRelatedProducts(
   limit = 4,
 ): Promise<Product[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createPublicCatalogClient([CACHE_TAGS.PRODUCTS])
     const { data } = await supabase
       .from('products')
       .select(PRODUCT_COLUMNS)
@@ -526,7 +605,7 @@ export async function getRelatedProducts(
       .limit(limit)
 
     if (data && data.length > 0) {
-      return data as unknown as Product[]
+      return (data as unknown as Product[]).map(normalizeProduct)
     }
   } catch {
     // Ignore and fallback
@@ -556,7 +635,7 @@ export async function getRelatedProducts(
  */
 export async function getAllProductsForSitemap(): Promise<{ slug: string; updated_at: string }[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createPublicCatalogClient([CACHE_TAGS.PRODUCTS])
     const { data } = await supabase
       .from('products')
       .select('slug, updated_at')

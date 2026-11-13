@@ -2,6 +2,8 @@ import type { MetadataRoute } from 'next'
 import { getCategorySlugs, getAllProductsForSitemap } from '@/lib/supabase/products'
 import { getSiteUrl } from '@/lib/env/public'
 
+export const revalidate = 3600
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getSiteUrl()
 

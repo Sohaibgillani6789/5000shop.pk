@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import type { Product } from "@/lib/supabase/types";
 
 interface ProductCardProps {
@@ -44,8 +43,7 @@ export default function ProductCard({
       className={`block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F47514] rounded-md transition-shadow ${className}`}
       aria-label={`${product.title} - Rs ${product.price.toLocaleString()}`}
     >
-      <motion.article
-        whileHover={{ y: -4, transition: { duration: 0.22, ease: "easeOut" } }}
+      <article
         style={{
           position: "relative",
           width: isGrid ? "100%" : "240px",
@@ -54,6 +52,7 @@ export default function ProductCard({
           display: "flex",
           flexDirection: "column",
           background: "transparent",
+          transition: "transform 0.22s ease-out",
         }}
         className="product-card group"
       >
@@ -233,11 +232,16 @@ export default function ProductCard({
       </div>
 
       <style>{`
-        .product-card:hover .product-card-img {
-          transform: scale(1.05);
+        @media (hover: hover) {
+          .product-card:hover {
+            transform: translateY(-4px);
+          }
+          .product-card:hover .product-card-img {
+            transform: scale(1.05);
+          }
         }
       `}</style>
-      </motion.article>
+      </article>
     </Link>
   );
 }

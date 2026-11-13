@@ -4,6 +4,8 @@ import FeaturedProductsSection from "@/components/FeaturedProductsSection";
 import Footer from "@/components/Footer";
 import { getFeaturedProducts } from "@/lib/supabase/products";
 
+export const revalidate = 3600;
+
 export default async function Home() {
   const products = await getFeaturedProducts();
 

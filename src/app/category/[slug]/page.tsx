@@ -23,6 +23,8 @@ const CANONICAL_SLUGS = [
   "accessories",
 ] as const;
 
+export const revalidate = 3600;
+
 export async function generateStaticParams() {
   const dynamicSlugs = await getCategorySlugs();
   const slugs = dynamicSlugs.length > 0 ? dynamicSlugs : CANONICAL_SLUGS;

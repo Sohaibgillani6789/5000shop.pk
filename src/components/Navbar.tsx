@@ -109,8 +109,7 @@ export default function Navbar() {
           id="top-announcement-bar"
           ref={announcementRef}
           style={{
-            background:
-              "linear-gradient(90deg, #DF5E03 0%, #F47514 50%, #DF5E03 100%)",
+            background: "#F47514",
             padding: "0.3rem 0.5rem",
             overflow: "hidden",
             position: "relative",
@@ -263,12 +262,12 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", stiffness: 320, damping: 32 }}
+              className="navbar-sliding-panel"
               style={{
                 position: "fixed",
                 top: announcementHeight,
                 left: 0,
                 bottom: 0,
-                width: "min(280px, 82vw)",
                 zIndex: 1080,
                 background: "#F47514",
                 borderRight: "none",
@@ -377,19 +376,6 @@ export default function Navbar() {
                   <ShoppingCart size={17} />
                   <span>Shop Now</span>
                 </AnchorLink>
-
-                <div
-                  style={{
-                    marginTop: "1.25rem",
-                    color: "rgba(0,0,0,0.55)",
-                    fontSize: "0.75rem",
-                    fontFamily: "var(--font-outfit), sans-serif",
-                    lineHeight: 1.6,
-                  }}
-                >
-                  <p style={{ margin: 0 }}>Everything under Rs 5,000</p>
-                  <p style={{ margin: "0.2rem 0 0" }}>Made for Pakistan</p>
-                </div>
               </motion.div>
             </motion.aside>
           </>
@@ -486,7 +472,7 @@ export default function Navbar() {
           align-items: center;
           justify-content: center;
           gap: 0.5rem;
-          padding: 0.875rem 1.5rem;
+          padding: 0.875rem 1.25rem;
           border-radius: 10px;
           background: #000000;
           color: #F47514;
@@ -496,8 +482,12 @@ export default function Navbar() {
           text-decoration: none;
           min-height: 48px;
           width: 100%;
+          white-space: nowrap;
           transition: all 0.3s ease;
           box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+        }
+        .panel-cta-btn span {
+          white-space: nowrap;
         }
         .panel-cta-btn:hover {
           box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
@@ -508,6 +498,29 @@ export default function Navbar() {
         }
         .panel-close-btn:hover {
           background: rgba(0, 0, 0, 0.22) !important;
+        }
+        .navbar-sliding-panel {
+          width: 280px;
+        }
+        @media (max-width: 768px) {
+          .navbar-sliding-panel {
+            width: 50vw !important;
+            max-width: 50vw !important;
+          }
+          .navbar-sliding-panel .panel-nav-link {
+            padding: 0.75rem 1rem !important;
+            font-size: 0.9375rem !important;
+          }
+          .navbar-sliding-panel > div:last-child {
+            padding: 1rem 0.75rem !important;
+          }
+          .navbar-sliding-panel .panel-cta-btn {
+            padding: 0.65rem 0.5rem !important;
+            font-size: clamp(0.72rem, 1.8vw, 0.82rem) !important;
+            gap: 0.35rem !important;
+            min-height: 40px !important;
+            white-space: nowrap !important;
+          }
         }
         .navbar-logo-box {
           position: relative;
